@@ -1,8 +1,7 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <meta name="theme-color" content="#121417"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Fuel Calc">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <title>ICN Fuel Calculator</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +53,9 @@ button{cursor:pointer}
 .chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
 .chip[aria-pressed="true"] span{color:inherit;opacity:.75}
 
-.head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.head h1{min-width:0}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .head h1{margin:0;font-family:var(--f-disp);font-size:27px;font-weight:700;letter-spacing:.02em;line-height:1.05}
 .head .sub{color:var(--muted);font-size:12.5px}
 .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
@@ -76,6 +77,7 @@ table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
 .fm td,.fm th{border:1px solid var(--rule);padding:0;vertical-align:middle}
 .fm tr:first-child>*{border-top:0} .fm tr>*:first-child{border-left:0} .fm tr>*:last-child{border-right:0} .fm tr:last-child>*{border-bottom:0}
 .fm th{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:13px;padding:6px 6px;line-height:1.1;text-align:center}
+.fm.ul td{height:66px}.fm.ul td:not(.lc)>.ci{height:100%}.fm.ul td.lc{vertical-align:top;padding:0}.fm.ul td.lc .k{float:none;margin-left:2px}.fm.ul td.lc .lb{padding:5px 6px 2px;font-size:12px}.fm.ul td.lc .ci,.fm.ul td.lc .co{min-height:38px}.fm.ul .tn{padding:4px;text-align:center;font-size:12.5px}.fm.ul tr:nth-last-child(-n+2) td{height:auto}
 .fm th.ttl{font-size:15px;letter-spacing:.06em;padding:8px 6px}
 .lb{font-family:var(--f-disp);font-weight:600;text-transform:uppercase;font-size:13px;letter-spacing:.03em;padding:6px 7px;line-height:1.12}
 .lb small{display:block;font-size:11px;color:var(--muted);letter-spacing:.02em}
@@ -104,9 +106,9 @@ table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
 .gs{display:inline-flex;gap:1px;margin-left:4px;vertical-align:middle}
 .gs button{border:1px solid var(--rule);background:var(--in-bg);width:20px;height:20px;padding:0;font-size:11px;font-family:var(--f-disp);font-weight:700;border-radius:50%;color:var(--muted)}
 .gs button[aria-pressed="true"]{border:1.5px solid var(--pen);color:var(--pen)}
-.sgn{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.sgn{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding-left:3px}
 .sgn .c{display:inline-flex;gap:3px;font-family:var(--f-num);font-weight:600;font-size:14px;color:var(--muted)}
-.sgn .c i{font-style:normal;width:20px;height:20px;display:inline-grid;place-items:center;border-radius:50%;border:1.5px solid transparent}
+.sgn .c i{font-style:normal;width:18px;height:18px;display:inline-grid;place-items:center;border-radius:50%;border:1.5px solid transparent}
 .sgn .c i.on{border-color:currentColor;color:var(--pen)}
 .tog{display:inline-flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin-left:4px;vertical-align:middle}
 .tog button{border:0;background:transparent;padding:0 5px;font-size:11px;font-family:var(--f-num);color:var(--muted);text-transform:none}
@@ -172,7 +174,7 @@ function fuelCalc(uplifts, unit, sgIn) {
 const toL = (kg, sg) => (kg == null || !sg) ? null : kg / sg;
 
 const AIRLINES = {
-  EK: { code: 'EK', name: 'Emirates', types: ['B777', 'A380'], units: ['L', 'USG'],
+  EK: { code: 'EK', name: 'Emirates', types: ['B777 / A380'], units: ['L', 'USG'],
     form: 'Aircraft Fuel and Fluids Servicing Record',
     compute(v, f) {
       const A = N(v.A), C = N(v.C), D = N(v.D), G = N(v.G);
@@ -238,7 +240,7 @@ if (typeof module !== 'undefined') module.exports = { AIRLINES, fuelCalc, runAir
 
 // 양식 사진(2026-10) 값으로 만든 예시 데이터
 const SAMPLES = {
-  EK: { sg: '0.793', bu: 'L', uplifts: [{ v: '162228', r: '' }], vals: { acType: 'B777', A: '23100', C: '22700', D: '152800', G: '152800', frz: '-47', rcpt: '3-26669MO', sup: 'ASIANA AIRPORT' } },
+  EK: { sg: '0.793', bu: 'L', uplifts: [{ v: '162228', r: '' }], vals: { A: '23100', C: '22700', D: '152800', G: '152800', frz: '-47', rcpt: '3-26669MO', sup: 'ASIANA AIRPORT' } },
   UL: { sg: '0.794', bu: 'USG', uplifts: [{ v: '16135', r: '' }], vals: { J: '7700', pre_1: '3850', pre_3: '3850', dep_0: '2900', dep_1: '23560', dep_2: '220', dep_3: '23760', dep_4: '2960', dep_5: '2400', rcpt: '4467118', grade: 'JET A-1' } },
   LOT: { sg: '0.788', bu: 'L', uplifts: [{ v: '80908', r: '' }], vals: { arr: '9300', dep_0: '16900', dep_1: '39400', dep_2: '16900', gs_0: 'G', gs_1: 'G', gs_2: 'G', ft1: 'JET A-1' } },
   KC: { sg: '0.794', bu: 'L', uplifts: [{ v: '33228', r: '' }], vals: { pre_0: '8300', pre_1: '8600', pre_2: '0', dep_0: '18.0', dep_1: '18.0', dep_2: '7.5', depUnit: 't', sup: 'KAS' } },
@@ -247,7 +249,7 @@ const SAMPLES = {
 if (typeof module !== 'undefined') module.exports = { SAMPLES };
 
 (function(){
-const KEY='icnfuel.v2';
+const KEY='icnfuel.v3';
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -255,7 +257,7 @@ let S=load()||{};
 S.cur=S.cur||'EK'; S.data=S.data||{}; S.sample=S.sample||{}; if(S.limit==null) S.limit='1000';
 S.tools=S.tools||{cv:'',cu:'L',csg:'0.790',hh:'',mm:'',qt:''};
 const ORDER=['EK','UL','LOT','KC','AI'];
-const st=id=>{ if(!S.data[id]){S.data[id]=clone(SAMPLES[id]);S.sample[id]=true;} return S.data[id]; };
+const st=id=>{ if(!S.data[id]){S.data[id]={sg:'',bu:AIRLINES[id].units[0],uplifts:[{v:'',r:''}],vals:{depUnit:'t'}};S.sample[id]=false;} return S.data[id]; };
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
@@ -288,7 +290,7 @@ EK:()=>`<div class="form" style="--tint:var(--t-EK)">
 <tr><td class="lt">B</td><td class="lb">Fuel used on ground <small>(A−C)</small></td><td>${O('B')}</td><td>${I('frz',{txt:1,ph:'-47℃',al:'Fuel freeze point'})}</td></tr>
 <tr><td class="lt">C</td><td class="lb">Indicated FOB pre-refuel</td><td>${I('C',{al:'C Indicated FOB pre-refuel'})}</td><td class="lb" style="text-align:center">Fuel SG</td></tr>
 <tr><td class="lt">D</td><td class="lb">Required departure fuel</td><td>${I('D',{al:'D Required departure fuel'})}</td><td>${SG()}</td></tr>
-<tr><td class="lt">E</td><td class="lb">Required uplift <small>(D−C)</small></td><td>${O('E')}${HINT('reqL','≈ ',' 요청',{conv:1})}</td><td>${UNITS(['Litres','USG'])}</td></tr>
+<tr><td class="lt">E</td><td class="lb">Required uplift <small>(D−C)</small></td><td>${O('E')}</td><td>${UNITS(['Litres','USG'])}</td></tr>
 <tr><td class="lt">F</td><td class="lb">Actual uplift <small>supplier</small></td><td>${O('F')}</td><td>${BW()}</td></tr>
 <tr><td class="lt">G</td><td class="lb">Indicated FOB departure</td><td>${I('G',{al:'G Indicated FOB departure'})}</td><td class="shade"></td></tr>
 <tr><td class="lt">H</td><td class="lb">Calculated FOB diff <small>(G−C)</small></td><td>${O('H')}</td><td class="shade"></td></tr>
@@ -299,37 +301,33 @@ EK:()=>`<div class="form" style="--tint:var(--t-EK)">
 <tr><td class="lb">Fuel supplier</td><td>${I('sup',{txt:1,al:'Fuel supplier'})}</td></tr>
 </table></div>`,
 
-UL:()=>`<div class="form" style="--tint:var(--t-UL)">
-<table class="fm"><colgroup><col><col style="width:44%"></colgroup>
-<tr><th class="ttl" colspan="2">Fuel Data</th></tr>
-<tr><td class="lb">Arrival FOB <span class="k">J</span></td><td>${I('J',{al:'J Arrival FOB'})}</td></tr>
-<tr><td class="lb">Fuel used on GND <span class="k">K</span></td><td>${I('K',{al:'K Fuel used on ground'})}</td></tr>
-<tr><td class="lb" colspan="2">A/C Attitude (ADIRU)</td></tr>
-<tr><td class="lb">Pitch</td><td>${I('pitch',{txt:1,al:'Pitch'})}</td></tr>
-<tr><td class="lb">Roll</td><td>${I('roll',{txt:1,al:'Roll'})}</td></tr>
-<tr><td class="lb">Discrepancy <span class="k">J−K−L</span></td><td>${O('JKL',{fmt:'s'})}</td></tr>
+UL:()=>{const L=[
+ `<div class="lb">Arrival FOB <span class="k">J</span></div>${I('J',{al:'J Arrival FOB'})}`,
+ `<div class="lb">Fuel used on GND <span class="k">K</span></div>${I('K',{al:'K Fuel used on ground'})}`,
+ `<div class="lb">A/C Attitude<br>(ADIRU)</div>`,
+ `<div class="lb">Pitch</div>${I('pitch',{txt:1,al:'Pitch'})}`,
+ `<div class="lb">Roll</div>${I('roll',{txt:1,al:'Roll'})}`,
+ `<div class="lb">Discrepancy <span class="k">J−K−L</span></div>${O('JKL',{fmt:'s'})}`];
+return `<div class="form" style="--tint:var(--t-UL)">
+<table class="fm ul"><colgroup><col style="width:31%"><col style="width:13%"><col><col></colgroup>
+<tr><th class="ttl" colspan="4">Fuel Data</th></tr>
+<tr><th></th><th>Tank<br>No</th><th>Pre Uplift<br>Fuel</th><th>Departure<br>Fuel</th></tr>
+${A.tanks.map((t,i)=>`<tr><td class="lc">${L[i]}</td><td class="lb faint tn">${t}</td><td>${I('pre_'+i,{al:t+' pre uplift'})}</td><td>${I('dep_'+i,{al:t+' departure'})}</td></tr>`).join('')}
+<tr><td class="shade"></td><td class="lb tn">TTL <span class="k">L</span></td><td>${O('L')}</td><td>${O('E')}</td></tr>
+<tr><td class="cap" colspan="4">Stick reading before / after refuelling — 사선(/) 처리</td></tr>
 </table>
-<table class="fm"><colgroup><col style="width:26%"><col><col></colgroup>
-<tr><th>Tank No</th><th>Pre Uplift Fuel</th><th>Departure Fuel</th></tr>
-${A.tanks.map((t,i)=>`<tr><td class="lb faint">${t}</td><td>${I('pre_'+i,{al:t+' pre uplift'})}</td><td>${I('dep_'+i,{al:t+' departure'})}</td></tr>`).join('')}
-<tr><td class="lb">TTL <span class="k">L</span></td><td>${O('L')}</td><td>${O('E')}</td></tr>
-<tr><td class="cap" colspan="3">Stick reading before / after refuelling — 사선(/) 처리</td></tr>
-</table>
-<table class="fm"><colgroup><col><col style="width:46%"></colgroup>
-<tr><th colspan="2" style="text-align:right">[KG / LBS]</th></tr>
-<tr><td class="lb">Dep fuel <span class="k">E</span></td><td>${O('E')}</td></tr>
-<tr><td class="lb">Pre uplift <span class="k">F</span></td><td>${O('F')}</td></tr>
-<tr><td class="lb">Act uplift <span class="k">G</span></td><td>${O('G')}</td></tr>
-<tr><td class="lb">Cal uplift <span class="k">H=E−F</span></td><td>${O('H')}</td></tr>
-<tr><td class="lb">Discrepancy <span class="k">G−H</span></td><td>${PM('GH')}</td></tr>
-</table>
-<table class="fm"><colgroup><col><col style="width:44%"></colgroup>
-<tr><th colspan="2">Fuel Bowser Uplift ${UNITS(['Litres','US Gallons','Imperial Gallons'])}</th></tr>
-<tr><td class="lb">Total bowser uplift</td><td>${BW()}${HINT('fkg','= ',' kg')}</td></tr>
-<tr><td class="lb">Specific gravity</td><td>${SG()}</td></tr>
-<tr><td class="lb">Reciept no</td><td>${I('rcpt',{txt:1,al:'Receipt no'})}</td></tr>
-<tr><td class="lb">Fuel grade</td><td>${I('grade',{txt:1,ph:'JET A-1',al:'Fuel grade'})}</td></tr>
-</table></div>`,
+<table class="fm"><colgroup><col style="width:31%"><col style="width:13%"><col><col></colgroup>
+<tr><td class="shade" rowspan="5"><div class="cap">Fluid Data</div></td><td class="lb" colspan="2">Dep fuel <span class="k">E</span></td><td>${O('E')}</td></tr>
+<tr><td class="lb" colspan="2">Pre uplift <span class="k">F</span></td><td>${O('F')}</td></tr>
+<tr><td class="lb" colspan="2">Act uplift <span class="k">G</span></td><td>${O('G')}</td></tr>
+<tr><td class="lb" colspan="2">Cal uplift <span class="k">H=E−F</span></td><td>${O('H')}</td></tr>
+<tr><td class="lb" colspan="2">Discrepancy <span class="k">G−H</span></td><td>${PM('GH')}</td></tr>
+<tr><th colspan="4">Fuel Bowser Uplift ${UNITS(['Litres','US Gallons','Imperial Gallons'])}</th></tr>
+<tr><td class="lb" colspan="2">Total bowser uplift</td><td colspan="2">${BW()}${HINT('fkg','= ',' kg')}</td></tr>
+<tr><td class="lb" colspan="2">Specific gravity</td><td colspan="2">${SG()}</td></tr>
+<tr><td class="lb" colspan="2">Reciept no</td><td colspan="2">${I('rcpt',{txt:1,al:'Receipt no'})}</td></tr>
+<tr><td class="lb" colspan="2">Fuel grade</td><td colspan="2">${I('grade',{txt:1,ph:'JET A-1',al:'Fuel grade'})}</td></tr>
+</table></div>`;},
 
 LOT:()=>`<div class="form" style="--tint:var(--t-LOT)">
 <table class="fm"><colgroup><col><col style="width:40%"></colgroup>
@@ -387,7 +385,7 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 <tr><td class="lb">Receipt No.</td><td>${I('rcpt',{txt:1,al:'Receipt no'})}</td></tr>
 <tr><td class="lb">Uplift Litres</td><td>${BW()}</td></tr>
 <tr><th>Plan (Required) Uplift Kgs</th><th>Actual Uplift Kgs</th></tr>
-<tr><td>${I('plan',{al:'Plan uplift'})}${HINT('planL','≈ ',' L 요청')}</td><td>${O('act')}</td></tr>
+<tr><td>${I('plan',{al:'Plan uplift'})}</td><td>${O('act')}</td></tr>
 <tr><td class="lb">Calculated (Y−X) Kgs</td><td>${O('calc')}</td></tr>
 </table>
 <table class="fm"><colgroup><col><col style="width:50%"></colgroup>
@@ -395,20 +393,17 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 <tr><td class="lb">Dep Fuel SG</td><td>${SG()}</td></tr>
 </table></div>`,
 };
-const PLAN={UL:'계획 − TTL L',LOT:'계획 − ARR',KC:'계획 − Pre-Fuel'};
 
 function airlineView(id){
   A=AIRLINES[id]; s=st(id); v=s.vals; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
   const type=v.acType||A.types[0];
-  let h=`<div class="head"><div><h1>${esc(A.name)} <span class="faint">${esc(type)}</span></h1><div class="sub">${esc(A.form)}</div>
-    <div class="meta">${A.types.length>1?`<div class="seg" role="group" aria-label="기종">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}
-    <span class="legend"><span><i class="sw i"></i>입력</span><span><i class="sw a"></i>자동 계산</span></span>${S.sample[id]?'<span class="pill">예시값</span>':''}</div></div>
-    <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp">예시</button></div></div>`;
+  let h=`<div class="head"><h1>${esc(A.name)} <span class="faint">${esc(type)}</span></h1>
+    <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp" aria-pressed="${!!S.sample[id]}">예시</button></div></div>
+    ${A.types.length>1?`<div class="seg" role="group" aria-label="기종" style="align-self:flex-start">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}`;
   h+=FORMS[id]();
   if(s.uplifts.length>1){
     h+=`<div class="aux"><h2>급유 합산 (여러 대) · 단위 ${UNAME[s.bu]}</h2><div class="ups">${s.uplifts.map((u,i)=>`<div class="up"><span class="n">#${i+1}</span><div class="ci"><input id="f-up${i}" data-up="${i}" data-f="v" inputmode="decimal" autocomplete="off" value="${esc(u.v)}" aria-label="급유 ${i+1}"></div><div class="ci"><input id="f-rc${i}" data-up="${i}" data-f="r" class="txt" autocomplete="off" value="${esc(u.r)}" placeholder="영수증" aria-label="영수증 ${i+1}"></div><button class="x" data-del="${i}" aria-label="급유 ${i+1} 삭제">×</button></div>`).join('')}<button class="add" data-addup="1">+ 급유차 추가</button></div></div>`;
   }
-  if(PLAN[id]) h+=`<div class="aux"><h2>참고 · 급유 요청량 (양식에 없음)</h2><div class="g"><label>계획 출발연료 kg${I('plan',{al:'계획 출발연료'})}</label><label>필요 급유 kg${O('req')}</label><label>≈ 리터${O('reqL')}</label></div><div class="hint" style="text-align:left;padding:0 12px 10px">필요 급유 = ${PLAN[id]}</div></div>`;
   return h;
 }
 
@@ -468,7 +463,7 @@ function render(){
   update();
 }
 let tT; const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tT);tT=setTimeout(()=>t.hidden=true,1800);};
-const touched=()=>{ if(S.sample[S.cur]){S.sample[S.cur]=false;const p=$('.pill');p&&p.remove();} };
+const touched=()=>{ if(S.sample[S.cur]){S.sample[S.cur]=false;const p=$('#smp');p&&p.setAttribute('aria-pressed','false');} };
 
 document.addEventListener('input',e=>{
   const el=e.target;
