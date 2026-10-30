@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <meta name="theme-color" content="#121417"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Fuel Calc">
-<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>ICN Fuel Calculator</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 </head><body>
 <style>
 /* Layout: 종이 양식 복제 — 상단 JET A-1 밴드, 항공사 칩, 항공사별 양식 표(칸 배치 그대로), 하단 고정 디스크레판시 바 */
@@ -17,13 +17,17 @@
   --f-disp:"Barlow Condensed","Arial Narrow",sans-serif;
   --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --f-num:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --f-form:"Arimo",Arial,Helvetica,sans-serif;
+  --memo:#fff3cc; --memo-fg:#6b4a00; --memo-bd:#e0b84a;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --memo:#2c2410; --memo-fg:#f2c867; --memo-bd:#7a5f1c;
   --paper:#0d1217; --card:#151c25; --ink:#e4e9f0; --muted:#94a0b0; --rule:#4a5666; --line:#283240;
   --pen:#95b5ff; --in-bg:#0b1016; --band:#050608; --band-fg:#f4f4f2;
   --t-EK:#19202a; --t-UL:#1c1b28; --t-LOT:#16202c; --t-KC:#1a2318; --t-AI:#231f18;
   --ok:#52c890; --ok-bg:#11281d; --bad:#ff7272; --bad-bg:#371617; color-scheme:dark}}
 :root[data-theme="dark"]{
+  --memo:#2c2410; --memo-fg:#f2c867; --memo-bd:#7a5f1c;
   --paper:#0d1217; --card:#151c25; --ink:#e4e9f0; --muted:#94a0b0; --rule:#4a5666; --line:#283240;
   --pen:#95b5ff; --in-bg:#0b1016; --band:#050608; --band-fg:#f4f4f2;
   --t-EK:#19202a; --t-UL:#1c1b28; --t-LOT:#16202c; --t-KC:#1a2318; --t-AI:#231f18;
@@ -39,6 +43,8 @@ button{cursor:pointer}
 .band{background:var(--band);color:var(--band-fg);padding-block:13px 11px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .band-in{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{font-family:var(--f-disp);font-weight:700;font-size:21px;letter-spacing:.06em;text-transform:uppercase}
+.brand{display:flex;align-items:center;gap:9px;white-space:nowrap;min-width:0}.jet{white-space:nowrap;flex:none}
+@media (max-width:420px){.brand small{display:none}.brand{font-size:19px}}.logo{width:30px;height:30px;border-radius:7px;flex:none}
 .brand small{font-weight:500;opacity:.6;letter-spacing:.08em;font-size:13px;margin-left:6px}
 .jet{font-family:var(--f-disp);font-weight:700;letter-spacing:.14em;font-size:13px;border:1.5px solid var(--band-fg);padding:1px 7px}
 
@@ -71,23 +77,41 @@ button{cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 
 /* ===== paper form ===== */
-.form{background:var(--tint);border:2px solid var(--ink);border-radius:2px;overflow-x:auto}
+/* 항공사별 종이: --tint 종이색, --lbl 라벨칸, --entry 기입칸, --frame 선 */
+.f-EK{--tint:#dfe4e9;--lbl:transparent;--entry:#f3f5f7;--frame:#3a4450}
+.f-UL{--tint:#f4f3f9;--lbl:#dcdbe3;--entry:#ffffff;--frame:#2a2a33}
+.f-LOT{--tint:#e2ecf6;--lbl:transparent;--entry:#eef4fb;--frame:#1c2632}
+.f-KC{--tint:#edf3e3;--lbl:transparent;--entry:#f8fbf2;--frame:#22281d}
+.f-AI{--tint:#f5f0e1;--lbl:#d3d3d0;--entry:#fbf2c2;--frame:#30302c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .f-EK{--tint:#1a2129;--entry:#121820;--frame:#7f8d9c}
+:root:not([data-theme="light"]) .f-UL{--tint:#1c1b26;--lbl:#2a2936;--entry:#13121b;--frame:#8a88a0}
+:root:not([data-theme="light"]) .f-LOT{--tint:#16212d;--entry:#0f1822;--frame:#7f95ad}
+:root:not([data-theme="light"]) .f-KC{--tint:#1a2318;--entry:#121a10;--frame:#8a9a7c}
+:root:not([data-theme="light"]) .f-AI{--tint:#24201a;--lbl:#34312b;--entry:#2b2611;--frame:#a09a86}}
+:root[data-theme="dark"] .f-EK{--tint:#1a2129;--entry:#121820;--frame:#7f8d9c}
+:root[data-theme="dark"] .f-UL{--tint:#1c1b26;--lbl:#2a2936;--entry:#13121b;--frame:#8a88a0}
+:root[data-theme="dark"] .f-LOT{--tint:#16212d;--entry:#0f1822;--frame:#7f95ad}
+:root[data-theme="dark"] .f-KC{--tint:#1a2318;--entry:#121a10;--frame:#8a9a7c}
+:root[data-theme="dark"] .f-AI{--tint:#24201a;--lbl:#34312b;--entry:#2b2611;--frame:#a09a86}
+.form{background:var(--tint);border:2px solid var(--frame);border-radius:1px;overflow-x:auto;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 12%,transparent),0 6px 18px -10px color-mix(in srgb,var(--ink) 35%,transparent)}
 table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
-.fm+.fm{border-top:2px solid var(--ink)}
-.fm td,.fm th{border:1px solid var(--rule);padding:0;vertical-align:middle}
+.fm+.fm{border-top:2px solid var(--frame)}
+.fm td,.fm th{border:1px solid color-mix(in srgb,var(--frame) 60%,transparent);padding:0;vertical-align:middle}
+.fm th,.fm td.lb{background:var(--lbl)}
 .fm tr:first-child>*{border-top:0} .fm tr>*:first-child{border-left:0} .fm tr>*:last-child{border-right:0} .fm tr:last-child>*{border-bottom:0}
-.fm th{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:13px;padding:6px 6px;line-height:1.1;text-align:center}
+.fm th{font-family:var(--f-form);font-weight:700;letter-spacing:.01em;font-size:12.5px;padding:6px 6px;line-height:1.1;text-align:center}
 .fm.ul td{height:66px}.fm.ul td:not(.lc)>.ci{height:100%}.fm.ul td.lc{vertical-align:top;padding:0}.fm.ul td.lc .k{float:none;margin-left:2px}.fm.ul td.lc .lb{padding:5px 6px 2px;font-size:12px}.fm.ul td.lc .ci,.fm.ul td.lc .co{min-height:38px}.fm.ul .tn{padding:4px;text-align:center;font-size:12.5px}.fm.ul tr:nth-last-child(-n+2) td{height:auto}
 .fm th.ttl{font-size:15px;letter-spacing:.06em;padding:8px 6px}
-.lb{font-family:var(--f-disp);font-weight:600;text-transform:uppercase;font-size:13px;letter-spacing:.03em;padding:6px 7px;line-height:1.12}
+.lb{font-family:var(--f-form);font-weight:400;font-size:12.5px;letter-spacing:0;padding:6px 7px;line-height:1.15}
+.uc .lb,.uc th{text-transform:uppercase}
 .lb small{display:block;font-size:11px;color:var(--muted);letter-spacing:.02em}
 .lb .k{float:right;color:var(--muted);margin-left:4px}
-.lt{font-family:var(--f-disp);font-weight:700;font-size:15px;text-align:center}
+.lt{font-family:var(--f-form);font-weight:700;font-size:14px;text-align:center}
 .faint{color:var(--muted);font-weight:500}
-.cap{font-size:11px;color:var(--muted);padding:3px 7px;font-family:var(--f-disp);letter-spacing:.04em;text-transform:uppercase}
+.cap{font-size:10.5px;color:var(--muted);padding:3px 7px;font-family:var(--f-form)}
 .shade{background:color-mix(in srgb,var(--ink) 7%,transparent)}
 
-.ci{display:flex;align-items:stretch;background:var(--in-bg);min-height:40px}
+.ci{display:flex;align-items:stretch;background:var(--entry,var(--in-bg));min-height:40px}
 .ci input{flex:1;min-width:0;width:100%;border:0;background:transparent;padding:8px 5px;font-family:var(--f-num);font-size:16px;font-weight:500;color:var(--pen);text-align:right;outline:none;font-variant-numeric:tabular-nums}
 .ci input.txt{font-family:var(--f-body);font-size:14px;text-align:left;text-transform:uppercase}
 .ci input::placeholder{color:var(--muted);opacity:.55;text-transform:none}
@@ -101,15 +125,28 @@ table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
 .hint{font-size:11px;color:var(--muted);padding:2px 6px 4px;text-align:right;font-family:var(--f-num);line-height:1.3}
 .hint.over{color:var(--bad);font-weight:600} .hint.ok{color:var(--ok)}
 .circ{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 4px;padding:4px}
-.circ button{border:1.5px solid transparent;background:transparent;border-radius:50%;padding:3px 7px;font-family:var(--f-disp);font-weight:600;font-size:12.5px;letter-spacing:.03em;color:var(--muted);text-transform:uppercase}
+.circ button{border:1.5px solid transparent;background:transparent;border-radius:50%;padding:3px 7px;font-family:var(--f-form);font-weight:700;font-size:12px;color:var(--muted);text-transform:uppercase}
 .circ button[aria-pressed="true"]{border-color:var(--pen);color:var(--pen)}
 .gs{display:inline-flex;gap:1px;margin-left:4px;vertical-align:middle}
-.gs button{border:1px solid var(--rule);background:var(--in-bg);width:20px;height:20px;padding:0;font-size:11px;font-family:var(--f-disp);font-weight:700;border-radius:50%;color:var(--muted)}
+.gs button{border:1px solid var(--frame);background:var(--entry);width:20px;height:20px;padding:0;font-size:11px;font-family:var(--f-form);font-weight:700;border-radius:2px;color:var(--muted)}
+.gs button[aria-pressed="true"]{border-radius:50%}
 .gs button[aria-pressed="true"]{border:1.5px solid var(--pen);color:var(--pen)}
 .sgn{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding-left:3px}
 .sgn .c{display:inline-flex;gap:3px;font-family:var(--f-num);font-weight:600;font-size:14px;color:var(--muted)}
 .sgn .c i{font-style:normal;width:18px;height:18px;display:inline-grid;place-items:center;border-radius:50%;border:1.5px solid transparent}
 .sgn .c i.on{border-color:currentColor;color:var(--pen)}
+.ci.bx{justify-content:flex-end;align-items:center;padding:5px 6px 5px 2px}
+.ci.bx input.bxi{flex:none;width:calc(var(--n)*1.9ch + .45ch);height:30px;padding:0;font-size:var(--bxfs,16px);letter-spacing:.9ch;text-align:right;
+  background-image:linear-gradient(to right,var(--frame) 0 1px,transparent 1px),linear-gradient(to bottom,var(--frame) 0 1px,transparent 1px calc(100% - 1px),var(--frame) calc(100% - 1px));
+  background-size:1.9ch 100%,calc(var(--n)*1.9ch + 1px) 100%;background-repeat:repeat-x,no-repeat;background-position:0 0,0 0}
+.ci.bx:focus-within{box-shadow:none}.ci.bx input.bxi:focus{box-shadow:0 0 0 2px var(--pen)}
+.bxo{display:flex;justify-content:flex-end;align-items:center;padding:5px 6px;font-size:var(--bxfs,16px);text-overflow:clip}
+.bxo i{font-style:normal;display:inline-grid;place-items:center;width:1.9ch;height:30px;border:1px solid var(--frame);margin-left:-1px}
+.bxo b{font-weight:600;width:.8ch;text-align:center}
+.sgn.bxo{gap:0}.sgn.bxo .c{margin-right:6px}.bxo .val{display:inline-flex;align-items:center}
+.mk{display:block;margin-top:3px;font-family:var(--f-body);font-size:10.5px;font-weight:600;color:var(--memo-fg);text-transform:none;letter-spacing:0}
+.memo{background:var(--memo);color:var(--memo-fg);border-left:3px solid var(--memo-bd);font-family:var(--f-body);font-size:12px;line-height:1.5;padding:7px 9px;text-align:left;font-weight:500;text-transform:none;letter-spacing:0}
+.memo b{font-weight:700}.memo .en{display:block;opacity:.75;font-size:11px}
 .tog{display:inline-flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin-left:4px;vertical-align:middle}
 .tog button{border:0;background:transparent;padding:0 5px;font-size:11px;font-family:var(--f-num);color:var(--muted);text-transform:none}
 .tog button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
@@ -165,7 +202,7 @@ table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
 @media (max-width:380px){.fm th{font-size:12px}.lb{font-size:12px}.ci input,.co{font-size:15px}}
 </style>
 
-<div class="band"><div class="band-in"><div class="brand">ICN Fuel Calc<small>Line Mx</small></div><span class="jet">JET A-1</span></div></div>
+<div class="band"><div class="band-in"><div class="brand"><img class="logo" alt="" src="data:image/png;base64,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">ICN Fuel Calc<small>Line Mx</small></div><span class="jet">JET A-1</span></div></div>
 <main class="wrap">
   <nav class="chips" id="chips" aria-label="항공사 선택"></nav>
   <div id="view"></div>
@@ -193,7 +230,7 @@ function fuelCalc(uplifts, unit, sgIn) {
 const toL = (kg, sg) => (kg == null || !sg) ? null : kg / sg;
 
 const AIRLINES = {
-  EK: { code: 'EK', name: 'Emirates', types: ['B777 / A380'], units: ['L', 'USG'],
+  EK: { code: 'EK', name: 'Emirates', types: ['B777/A380'], units: ['L', 'USG'],
     form: 'Aircraft Fuel and Fluids Servicing Record',
     compute(v, f) {
       const A = N(v.A), C = N(v.C), D = N(v.D), G = N(v.G);
@@ -288,9 +325,10 @@ const UNAME={L:'L',USG:'USG',IG:'IMP GAL'};
 
 let A,s,v; // current airline def / state / vals
 /* ---------- cell helpers ---------- */
-const I=(k,o={})=>`<div class="ci">${o.pre?`<span class="pre">${o.pre}</span>`:''}<input id="f-${k}" data-k="${k}" inputmode="${o.txt?'text':'decimal'}" class="${o.txt?'txt':''}" autocomplete="off" value="${esc(v[k]??'')}" placeholder="${esc(o.ph||'')}" aria-label="${esc(o.al||k)}">${o.neg?`<button class="pmb" data-neg="${k}" aria-label="부호 바꾸기">±</button>`:''}</div>`;
-const O=(k,o={})=>`<output class="co" data-o="${k}" data-fmt="${o.fmt||''}"${o.disc?' data-disc="1"':''}></output>`;
-const PM=(k)=>`<div class="sgn co" data-pm="${k}" data-disc="1"><span class="c"><i data-s="+">+</i><i data-s="-">−</i></span><span class="val"></span></div>`;
+const I=(k,o={})=>`<div class="ci${o.box?' bx':''}"${o.box?` style="--n:${o.box}"`:''}>${o.pre?`<span class="pre">${o.pre}</span>`:''}<input id="f-${k}" data-k="${k}" inputmode="${o.txt?'text':'decimal'}" class="${o.txt?'txt':o.box?'bxi':''}" autocomplete="off" value="${esc(v[k]??'')}" placeholder="${esc(o.ph||'')}" aria-label="${esc(o.al||k)}">${o.neg?`<button class="pmb" data-neg="${k}" aria-label="부호 바꾸기">±</button>`:''}</div>`;
+const O=(k,o={})=>`<output class="co${o.box?' bxo':''}" data-o="${k}" data-fmt="${o.fmt||''}"${o.box?` data-box="${o.box}"`:''}${o.disc?' data-disc="1"':''}>${o.box?boxes('',o.box):''}</output>`;
+function boxes(t,n){const ch=[...String(t)];const d=ch.filter(c=>/\d/.test(c)).length;let h='<i></i>'.repeat(Math.max(n-d,0));for(const c of ch)h+=/\d/.test(c)?`<i>${c}</i>`:`<b>${c==='-'?'−':c}</b>`;return h;}
+const PM=(k,n)=>`<div class="sgn co${n?' bxo':''}" data-pm="${k}" data-disc="1"${n?` data-box="${n}"`:''}><span class="c"><i data-s="+">+</i><i data-s="-">−</i></span><span class="val">${n?boxes('',n):''}</span></div>`;
 const HINT=(k,pre,suf,o={})=>`<div class="hint" data-h="${k}" data-pre="${esc(pre)}" data-suf="${esc(suf)}"${o.conv?' data-conv="1"':''}${o.disc?' data-hdisc="1"':''}${o.fmt?` data-fmt="${o.fmt}"`:''}></div>`;
 const SG=()=>`<div class="ci"><button class="pmb l" data-sgstep="-1" aria-label="SG 0.001 내리기">−</button><input id="f-sg" data-sg="1" inputmode="decimal" autocomplete="off" value="${esc(s.sg)}" placeholder="0.790" aria-label="SG"><button class="pmb" data-sgstep="1" aria-label="SG 0.001 올리기">+</button></div>`;
 const BW=()=> s.uplifts.length<=1
@@ -301,7 +339,7 @@ const GS=(i)=>`<span class="gs">${['G','S'].map(x=>`<button data-gs="${i}" data-
 
 /* ---------- forms (종이 양식 칸 배치 그대로) ---------- */
 const FORMS={
-EK:()=>`<div class="form" style="--tint:var(--t-EK)">
+EK:()=>`<div class="form f-EK uc">
 <table class="fm"><colgroup><col style="width:18px"><col><col style="width:27%"><col style="width:34%"></colgroup>
 <tr><th class="ttl" colspan="4">Aircraft Fuel and Fluids Servicing Record</th></tr>
 <tr><th></th><th style="text-align:left">Fuel Requirements</th><th>Kilograms</th><th>Other Fuel Info</th></tr>
@@ -309,7 +347,7 @@ EK:()=>`<div class="form" style="--tint:var(--t-EK)">
 <tr><td class="lt">B</td><td class="lb">Fuel used on ground <small>(A−C)</small></td><td>${O('B')}</td><td>${I('frz',{txt:1,ph:'-47℃',al:'Fuel freeze point'})}</td></tr>
 <tr><td class="lt">C</td><td class="lb">Indicated FOB pre-refuel</td><td>${I('C',{al:'C Indicated FOB pre-refuel'})}</td><td class="lb" style="text-align:center">Fuel SG</td></tr>
 <tr><td class="lt">D</td><td class="lb">Required departure fuel</td><td>${I('D',{al:'D Required departure fuel'})}</td><td>${SG()}</td></tr>
-<tr><td class="lt">E</td><td class="lb">Required uplift <small>(D−C)</small></td><td>${O('E')}</td><td>${UNITS(['Litres','USG'])}</td></tr>
+<tr><td class="lt">E</td><td class="lb">Required uplift <small>(D−C)</small></td><td>${O('E')}</td><td>${UNITS(['Litres','USG'])}<span class="mk" style="text-align:center;padding-bottom:4px">▶ 쓴 단위에 동그라미</span></td></tr>
 <tr><td class="lt">F</td><td class="lb">Actual uplift <small>supplier</small></td><td>${O('F')}</td><td>${BW()}</td></tr>
 <tr><td class="lt">G</td><td class="lb">Indicated FOB departure</td><td>${I('G',{al:'G Indicated FOB departure'})}</td><td class="shade"></td></tr>
 <tr><td class="lt">H</td><td class="lb">Calculated FOB diff <small>(G−C)</small></td><td>${O('H')}</td><td class="shade"></td></tr>
@@ -321,91 +359,92 @@ EK:()=>`<div class="form" style="--tint:var(--t-EK)">
 </table></div>`,
 
 UL:()=>{const L=[
- `<div class="lb">Arrival FOB <span class="k">J</span></div>${I('J',{al:'J Arrival FOB'})}`,
+ `<div class="lb">Arrival FOB <span class="k">J</span></div>${I('J',{al:'J Arrival FOB',box:5})}`,
  `<div class="lb">Fuel used on GND <span class="k">K</span></div>${I('K',{al:'K Fuel used on ground'})}`,
  `<div class="lb">A/C Attitude<br>(ADIRU)</div>`,
  `<div class="lb">Pitch</div>${I('pitch',{txt:1,al:'Pitch'})}`,
  `<div class="lb">Roll</div>${I('roll',{txt:1,al:'Roll'})}`,
  `<div class="lb">Discrepancy <span class="k">J−K−L</span></div>${O('JKL',{fmt:'s'})}`];
-return `<div class="form" style="--tint:var(--t-UL)">
-<table class="fm ul"><colgroup><col style="width:31%"><col style="width:13%"><col><col></colgroup>
+return `<div class="form f-UL uc" style="--bxfs:15px">
+<table class="fm ul"><colgroup><col style="width:31%"><col style="width:12%"><col><col></colgroup>
 <tr><th class="ttl" colspan="4">Fuel Data</th></tr>
 <tr><th></th><th>Tank<br>No</th><th>Pre Uplift<br>Fuel</th><th>Departure<br>Fuel</th></tr>
-${A.tanks.map((t,i)=>`<tr><td class="lc">${L[i]}</td><td class="lb faint tn">${t}</td><td>${I('pre_'+i,{al:t+' pre uplift'})}</td><td>${I('dep_'+i,{al:t+' departure'})}</td></tr>`).join('')}
-<tr><td class="shade"></td><td class="lb tn">TTL <span class="k">L</span></td><td>${O('L')}</td><td>${O('E')}</td></tr>
+${A.tanks.map((t,i)=>`<tr><td class="lc">${L[i]}</td><td class="lb faint tn">${t}</td><td>${I('pre_'+i,{al:t+' pre uplift',box:5})}</td><td>${I('dep_'+i,{al:t+' departure',box:5})}</td></tr>`).join('')}
+<tr><td class="shade"></td><td class="lb tn">TTL <span class="k">L</span></td><td>${O('L',{box:5})}</td><td>${O('E',{box:5})}</td></tr>
 <tr><td class="cap" colspan="4">Stick reading before / after refuelling — 사선(/) 처리</td></tr>
 </table>
-<table class="fm"><colgroup><col style="width:31%"><col style="width:13%"><col><col></colgroup>
-<tr><td class="shade" rowspan="5"><div class="cap">Fluid Data</div></td><td class="lb" colspan="2">Dep fuel <span class="k">E</span></td><td>${O('E')}</td></tr>
+<table class="fm"><colgroup><col style="width:31%"><col style="width:12%"><col><col></colgroup>
+<tr><td class="shade" rowspan="5"><div class="cap">FLUID DATA</div></td><td class="lb" colspan="2">Dep fuel <span class="k">E</span><span class="mk">▶ 기장 기입 (FLT CREW write)</span></td><td>${O('E')}</td></tr>
 <tr><td class="lb" colspan="2">Pre uplift <span class="k">F</span></td><td>${O('F')}</td></tr>
 <tr><td class="lb" colspan="2">Act uplift <span class="k">G</span></td><td>${O('G')}</td></tr>
 <tr><td class="lb" colspan="2">Cal uplift <span class="k">H=E−F</span></td><td>${O('H')}</td></tr>
 <tr><td class="lb" colspan="2">Discrepancy <span class="k">G−H</span></td><td>${PM('GH')}</td></tr>
-<tr><th colspan="4">Fuel Bowser Uplift ${UNITS(['Litres','US Gallons','Imperial Gallons'])}</th></tr>
+<tr><th colspan="4">Fuel Bowser Uplift ${UNITS(['Litres','US Gallons','Imperial Gallons'])}<span class="mk">▶ 쓴 단위에 동그라미</span></th></tr>
 <tr><td class="lb" colspan="2">Total bowser uplift</td><td colspan="2">${BW()}${HINT('fkg','= ',' kg')}</td></tr>
 <tr><td class="lb" colspan="2">Specific gravity</td><td colspan="2">${SG()}</td></tr>
-<tr><td class="lb" colspan="2">Reciept no</td><td colspan="2">${I('rcpt',{txt:1,al:'Receipt no'})}</td></tr>
+<tr><td class="lb" colspan="2">Reciept no<span class="mk">▶ 급유 영수증 번호</span></td><td colspan="2">${I('rcpt',{txt:1,al:'Receipt no'})}</td></tr>
 <tr><td class="lb" colspan="2">Fuel grade</td><td colspan="2">${I('grade',{txt:1,ph:'JET A-1',al:'Fuel grade'})}</td></tr>
 </table></div>`;},
 
-LOT:()=>`<div class="form" style="--tint:var(--t-LOT)">
-<table class="fm"><colgroup><col><col style="width:40%"></colgroup>
-<tr><td class="lb">ARR. Remaining Fuel [Kg]</td><td>${I('arr',{al:'Arrival remaining fuel'})}</td></tr>
+LOT:()=>`<div class="form f-LOT" style="--bxfs:15px">
+<table class="fm"><colgroup><col><col style="width:52%"></colgroup>
+<tr><td class="lb" style="font-size:14px">ARR. Remaining Fuel [Kg]</td><td>${I('arr',{al:'Arrival remaining fuel',box:6})}</td></tr>
 </table>
-<table class="fm"><colgroup><col style="width:23%"><col><col></colgroup>
-<tr><th rowspan="2">Fuel<br>Record</th><th colspan="2">Total Fuel</th></tr>
-<tr><th>[Kg]</th><th>[Litres]</th></tr>
-<tr><td class="lb">Depart 2</td><td>${O('D2')}</td><td class="shade"></td></tr>
-<tr><td class="lb">Adjustment</td><td>${O('adj',{fmt:'s'})}</td><td>${O('adjL',{fmt:'s'})}</td></tr>
-<tr><td class="lb">Depart 1</td><td>${O('D1')}</td><td class="shade"></td></tr>
-<tr><td class="lb">Uplift</td><td>${O('up')}</td><td>${BW()}</td></tr>
-<tr><td class="lb">Remaining</td><td>${O('rem')}${HINT('diff','ARR 대비 ',' kg',{fmt:'s',disc:1})}</td><td class="shade"></td></tr>
-<tr><td class="lb">S.G.1</td><td>${SG()}</td><td>${I('ft1',{txt:1,ph:'Fuel type',al:'Fuel type 1'})}</td></tr>
-<tr><td class="lb">S.G.2</td><td>${I('sg2',{ph:'0.',al:'SG 2'})}</td><td>${I('ft2',{txt:1,ph:'Fuel type',al:'Fuel type 2'})}</td></tr>
+<table class="fm"><colgroup><col style="width:22%"><col><col></colgroup>
+<tr><th rowspan="2" style="font-size:14px">FUEL<br>RECORD</th><th colspan="2" style="font-weight:400">Total Fuel</th></tr>
+<tr><th style="font-weight:400">[Kg]</th><th style="font-weight:400">[Litres]</th></tr>
+<tr><td class="lb">Depart 2</td><td>${O('D2',{box:6})}</td><td class="shade"></td></tr>
+<tr><td class="lb">Adjustment</td><td>${O('adj',{fmt:'s',box:6})}</td><td>${O('adjL',{fmt:'s',box:6})}</td></tr>
+<tr><td class="lb">Depart 1</td><td>${O('D1',{box:6})}</td><td class="shade"></td></tr>
+<tr><td class="lb">Uplift</td><td>${O('up',{box:6})}</td><td>${BW()}</td></tr>
+<tr><td class="lb">Remaining</td><td>${O('rem',{box:6})}${HINT('diff','ARR 대비 ',' kg',{fmt:'s',disc:1})}</td><td class="shade"></td></tr>
+<tr><td class="lb">S.G.1</td><td>${SG()}</td><td><div class="cap">Fuel Type</div>${I('ft1',{txt:1,ph:'Fuel type',al:'Fuel type 1'})}</td></tr>
+<tr><td class="lb">S.G.2</td><td>${I('sg2',{ph:'0.',al:'SG 2'})}</td><td><div class="cap">Fuel Type</div>${I('ft2',{txt:1,al:'Fuel type 2'})}</td></tr>
 </table>
 <table class="fm"><colgroup><col><col><col></colgroup>
-<tr><th colspan="3">After Refuel / Adjust Fuel Qty in Tanks</th></tr>
-<tr>${A.tanks.map((t,i)=>`<th>${t}${GS(i)}</th>`).join('')}</tr>
-<tr>${A.tanks.map((t,i)=>`<td>${I('dep_'+i,{al:t+' after refuel'})}</td>`).join('')}</tr>
+<tr><th colspan="3">AFTER REFUEL/ADJUST FUEL QTY IN TANKS</th></tr>
+<tr>${A.tanks.map((t,i)=>`<th style="font-weight:400">${t}${GS(i)}</th>`).join('')}</tr>
+<tr>${A.tanks.map((t,i)=>`<td>${I('dep_'+i,{al:t+' after refuel',box:5})}</td>`).join('')}</tr>
 <tr><td class="cap" colspan="3">Fuel Qty. Conf. → Depart 1</td></tr>
-<tr>${A.tanks.map((t,i)=>`<td>${I('adj_'+i,{al:t+' after adjust'})}</td>`).join('')}</tr>
+<tr>${A.tanks.map((t,i)=>`<td>${I('adj_'+i,{al:t+' after adjust',box:5})}</td>`).join('')}</tr>
 <tr><td class="cap" colspan="3">Fuel Adjust. Conf. → Depart 2 (조정했을 때만)</td></tr>
 </table></div>`,
 
-KC:()=>`<div class="form" style="--tint:var(--t-KC)">
+KC:()=>`<div class="form f-KC">
 <table class="fm"><colgroup><col style="width:19%"><col><col><col><col></colgroup>
-<tr><th class="ttl" colspan="5">Fuel Record</th></tr>
-<tr><th>Tanks</th><th>Pre-Fuel</th><th>Depart<span class="tog"><button data-dunit="t" aria-pressed="${v.depUnit!=='kg'}">t</button><button data-dunit="kg" aria-pressed="${v.depUnit==='kg'}">kg</button></span></th><th>Adjust ±</th><th>Adj. Depart</th></tr>
-${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' pre-fuel'})}</td><td>${I('dep_'+i,{al:t+' depart'})}</td><td>${I('adj_'+i,{neg:1,al:t+' adjust'})}</td><td>${O('adjDep_'+i)}</td></tr>`).join('')}
-<tr><td class="lb">Total</td><td>${O('pre')}</td><td>${O('dep')}</td><td class="shade"></td><td>${O('adjTot')}</td></tr>
+<tr><th class="ttl" colspan="5">FUEL RECORD</th></tr>
+<tr><td colspan="5" class="memo"><b>*NOTE</b> : LH 18.0 / RH 18.0 / CTR remain<br>CTR 세팅 변동이 심하니 <b>CTR 먼저 세팅</b> → 세팅값 도달 후 <b>밸브 닫고</b> → <b>윙탱크 시작</b><span class="en">CTR set first and finished until setting value, then close the valve and start the wing tank</span></td></tr>
+<tr><th>TANKS</th><th style="font-weight:400">Pre-Fuel</th><th>Depart<span class="tog"><button data-dunit="t" aria-pressed="${v.depUnit!=='kg'}">t</button><button data-dunit="kg" aria-pressed="${v.depUnit==='kg'}">kg</button></span></th><th style="font-weight:400">Adjust ±</th><th style="font-weight:400">Adj.<br>Depart</th></tr>
+${A.tanks.map((t,i)=>`<tr><td class="lb" style="font-size:14px;font-weight:700">${t}</td><td>${I('pre_'+i,{al:t+' pre-fuel'})}</td><td>${I('dep_'+i,{al:t+' depart'})}</td><td>${I('adj_'+i,{neg:1,al:t+' adjust'})}</td><td>${O('adjDep_'+i)}</td></tr>`).join('')}
+<tr><td class="lb" style="font-size:14px;font-weight:700">Total</td><td>${O('pre')}</td><td>${O('dep')}</td><td class="shade"></td><td>${O('adjTot')}</td></tr>
 </table>
-<table class="fm"><colgroup><col><col><col></colgroup>
-<tr><th colspan="2">Bowser Uplift</th><th>Calculated Uplift<br><span class="faint">Depart − Pre-Fuel</span></th></tr>
+<table class="fm"><colgroup><col style="width:30%"><col style="width:30%"><col></colgroup>
+<tr><th colspan="2" style="font-weight:400">Bowser Uplift</th><th style="font-weight:400">Calculated Uplift<br>Depart − Pre-Fuel</th></tr>
 <tr><td><div class="cap">Lts</div>${BW()}</td><td><div class="cap">kg</div>${O('bow')}</td><td><div class="cap">kg</div>${O('calc')}</td></tr>
-<tr><th colspan="2">Fuel Density</th><th>Discrepancy<br><span class="faint">(Calculated − Bowser)</span></th></tr>
-<tr><td colspan="2">${SG()}</td><td>${PM('dsc')}</td></tr>
-<tr><td class="lb">Supplier</td><td colspan="2">${I('sup',{txt:1,al:'Supplier'})}</td></tr>
+<tr><th colspan="2" style="font-size:14px;font-weight:400">Fuel Density</th><th>DISCREPANCY<br><span style="font-weight:400">(CALCULATED − BOWSER)</span></th></tr>
+<tr><td colspan="2">${SG()}</td><td>${PM('dsc',4)}</td></tr>
+<tr><td class="lb">SUPPLIER</td><td colspan="2">${I('sup',{txt:1,al:'Supplier'})}</td></tr>
 </table></div>`,
 
-AI:()=>`<div class="form" style="--tint:var(--t-AI)">
-<table class="fm"><colgroup><col><col style="width:44%"></colgroup>
-<tr><td class="lb">Arrival Fuel (Kg)</td><td>${I('arr',{al:'Arrival fuel'})}${HINT('gnd','지상 사용 ',' kg')}</td></tr>
+AI:()=>`<div class="form f-AI" style="--bxfs:15px">
+<table class="fm"><colgroup><col><col style="width:52%"></colgroup>
+<tr><td class="lb">Arrival Fuel (Kg)</td><td>${I('arr',{al:'Arrival fuel',box:6})}${HINT('gnd','지상 사용 ',' kg')}</td></tr>
 </table>
-<table class="fm"><colgroup><col style="width:30%"><col><col></colgroup>
-<tr><th rowspan="2">Tanks</th><th colspan="2">Fuel Distribution (Kg)</th></tr>
-<tr><th>In Tank (X)</th><th>Departure (Y)</th></tr>
-${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in tank'})}</td><td>${I('dep_'+i,{al:t+' departure'})}</td></tr>`).join('')}
-<tr><td class="lb">Total</td><td>${O('X')}</td><td>${O('Y')}</td></tr>
+<table class="fm"><colgroup><col style="width:26%"><col><col></colgroup>
+<tr><th rowspan="2" style="font-weight:400">Tanks</th><th colspan="2" style="font-weight:400">Fuel Distribution (Kg)</th></tr>
+<tr><th style="font-weight:400">In Tank (X)</th><th style="font-weight:400">Departure (Y)</th></tr>
+${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in tank',box:5})}</td><td>${I('dep_'+i,{al:t+' departure',box:5})}</td></tr>`).join('')}
+<tr><td class="lb">Total</td><td>${O('X',{box:5})}</td><td>${O('Y',{box:5})}</td></tr>
 <tr><td class="cap" colspan="3">안 쓰는 탱크는 비워두기 (양식에는 사선)</td></tr>
 </table>
 <table class="fm"><colgroup><col><col></colgroup>
-<tr><th colspan="2">Fuel Uplift Data</th></tr>
+<tr><th colspan="2" style="font-weight:400">Fuel Uplift Data</th></tr>
 <tr><td class="lb">Fuel Supplier</td><td>${I('sup',{txt:1,al:'Fuel supplier'})}</td></tr>
 <tr><td class="lb">Receipt No.</td><td>${I('rcpt',{txt:1,al:'Receipt no'})}</td></tr>
 <tr><td class="lb">Uplift Litres</td><td>${BW()}</td></tr>
-<tr><th>Plan (Required) Uplift Kgs</th><th>Actual Uplift Kgs</th></tr>
-<tr><td>${I('plan',{al:'Plan uplift'})}</td><td>${O('act')}</td></tr>
-<tr><td class="lb">Calculated (Y−X) Kgs</td><td>${O('calc')}</td></tr>
+<tr><th style="font-weight:400">Plan (Required) Uplift Kgs</th><th style="font-weight:400">Actual Uplift Kgs</th></tr>
+<tr><td>${I('plan',{al:'Plan uplift',box:6})}</td><td>${O('act',{box:6})}</td></tr>
+<tr><td class="lb">Calculated (Y−X) Kgs</td><td>${O('calc',{box:6})}</td></tr>
 </table>
 <table class="fm"><colgroup><col><col style="width:50%"></colgroup>
 <tr><td class="lb">Discrepancy <span class="k">%</span></td><td>${O('dp',{fmt:'p'})}${HINT('dkg','',' kg',{fmt:'s',disc:1})}</td></tr>
@@ -416,7 +455,7 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 function airlineView(id){
   A=AIRLINES[id]; s=st(id); v=s.vals; for(const k of ['ft1','grade']) if(v[k]===undefined) v[k]='JET A-1'; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
   const type=v.acType||A.types[0];
-  let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.8em">${esc(type)}</span></h1>
+  let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.72em">${esc(type)}</span></h1>
     <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp" aria-pressed="${!!S.sample[id]}">예시</button></div></div>
     ${A.types.length>1?`<div class="seg" role="group" aria-label="기종" style="align-self:flex-start">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}`;
   h+=FORMS[id]();
@@ -525,8 +564,8 @@ function update(){
   const {f,o}=runAirline(id,s);
   const lim=parseFloat(S.limit), dState=o.disc==null?'':(!isNaN(lim)&&Math.abs(o.disc)>lim?'over':'ok');
   const F=(x,fm)=>fm==='s'?s1(x):fm==='p'?p2(x):f1(x);
-  $$('[data-o]').forEach(el=>{el.textContent=F(o[el.dataset.o],el.dataset.fmt); if(el.dataset.disc){el.classList.toggle('ok',dState==='ok');el.classList.toggle('over',dState==='over');}});
-  $$('[data-pm]').forEach(el=>{const x=o[el.dataset.pm];el.querySelector('.val').textContent=x==null?'':f1(Math.abs(x));el.querySelectorAll('i').forEach(i=>i.classList.toggle('on',x!=null&&Math.round(x*10)!==0&&((i.dataset.s==='+')===(x>0))));el.classList.toggle('ok',dState==='ok');el.classList.toggle('over',dState==='over');});
+  $$('[data-o]').forEach(el=>{const t=F(o[el.dataset.o],el.dataset.fmt); if(el.dataset.box) el.innerHTML=boxes(t,+el.dataset.box); else el.textContent=t; if(el.dataset.disc){el.classList.toggle('ok',dState==='ok');el.classList.toggle('over',dState==='over');}});
+  $$('[data-pm]').forEach(el=>{const x=o[el.dataset.pm];{const t=x==null?'':f1(Math.abs(x)),vv=el.querySelector('.val'); if(el.dataset.box) vv.innerHTML=boxes(t,+el.dataset.box); else vv.textContent=t;}el.querySelectorAll('i').forEach(i=>i.classList.toggle('on',x!=null&&Math.round(x*10)!==0&&((i.dataset.s==='+')===(x>0))));el.classList.toggle('ok',dState==='ok');el.classList.toggle('over',dState==='over');});
   const m={L:1,USG:3.78541,IG:4.54609}[s.bu]||1;
   $$('[data-h]').forEach(el=>{
     const k=el.dataset.h; let x=k==='fkg'?f.kg:o[k], suf=el.dataset.suf;

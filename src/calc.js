@@ -17,7 +17,7 @@ function fuelCalc(uplifts, unit, sgIn) {
 const toL = (kg, sg) => (kg == null || !sg) ? null : kg / sg;
 
 const AIRLINES = {
-  EK: { code: 'EK', name: 'Emirates', types: ['B777 / A380'], units: ['L', 'USG'],
+  EK: { code: 'EK', name: 'Emirates', types: ['B777/A380'], units: ['L', 'USG'],
     form: 'Aircraft Fuel and Fluids Servicing Record',
     compute(v, f) {
       const A = N(v.A), C = N(v.C), D = N(v.D), G = N(v.G);
