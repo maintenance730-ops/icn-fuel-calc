@@ -318,7 +318,7 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 };
 
 function airlineView(id){
-  A=AIRLINES[id]; s=st(id); v=s.vals; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
+  A=AIRLINES[id]; s=st(id); v=s.vals; for(const k of ['ft1','grade']) if(v[k]===undefined) v[k]='JET A-1'; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
   const type=v.acType||A.types[0];
   let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.8em">${esc(type)}</span></h1>
     <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp" aria-pressed="${!!S.sample[id]}">예시</button></div></div>
@@ -482,7 +482,7 @@ document.addEventListener('click',e=>{
   if(b.id==='xbtn'){S.explain=!S.explain;b.setAttribute('aria-expanded',S.explain);$('#exp').hidden=!S.explain;return update();}
   if(b.id==='clr'){
     if(!clrArm){clrArm=1;b.textContent='한 번 더';setTimeout(()=>{clrArm=0;if(document.body.contains(b))b.textContent='비우기';},2500);return;}
-    clrArm=0;S.data[id]={sg:s.sg,bu:s.bu,uplifts:[{v:'',r:''}],vals:{acType:v.acType,depUnit:v.depUnit}};S.sample[id]=false;render();toast('입력값을 비웠어요 (SG·단위·기종은 유지)');return;}
+    clrArm=0;S.data[id]={sg:s.sg,bu:s.bu,uplifts:[{v:'',r:''}],vals:{acType:v.acType,depUnit:v.depUnit,ft1:'JET A-1',grade:'JET A-1'}};S.sample[id]=false;render();toast('입력값을 비웠어요 (SG·단위·기종은 유지)');return;}
   if(b.id==='smp'){S.data[id]=clone(SAMPLES[id]);S.sample[id]=true;render();toast('양식 사진 예시값을 불러왔어요');return;}
 });
 render();
