@@ -1,5 +1,5 @@
 // 오프라인 캐시: 인터넷 되면 최신 버전, 안 되면 저장된 버전
-const CACHE='icn-fuel-v7';
+const CACHE='icn-fuel-v8';
 const SHELL=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)));self.skipWaiting();});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
