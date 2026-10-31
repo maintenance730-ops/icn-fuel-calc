@@ -46,21 +46,29 @@ const AIRLINES = {
       const req = sub(N(v.plan), arr);
       return { D1, D2, adj, adjL: toL(adj, f.sg), up, upL: f.L, rem, diff, diffp: pct(diff, up), req, reqL: toL(req, f.sg), disc: diff };
     } },
-  KC: { code: 'KC', name: 'Air Astana', types: ['B767'], units: ['L'],
+  KC: { code: 'KC', name: 'Air Astana', types: ['B767'], units: ['USG', 'L'],
     form: 'Technical Report KC/ENG/001A — Fuel Record',
     tanks: ['Left', 'Right', 'Centre'],
+    // 탱크 값 단위 자동: 100 미만이면 t(×1000), 100 이상이면 kg  (B767 탱크는 kg로 100 미만일 수 없음)
     compute(v, f) {
-      const m = v.depUnit === 'kg' ? 1 : 1000;               // Depart / Adjust / Adj.Depart 단위 (기본 t)
-      const pre = sumN(this.tanks.map((_, i) => v['pre_' + i]));
-      const dep = sumN(this.tanks.map((_, i) => v['dep_' + i]));
-      const hasAdj = this.tanks.some((_, i) => N(v['adj_' + i]) != null);
-      const adjDep = this.tanks.map((_, i) => N(v['dep_' + i]) == null ? null : N(v['dep_' + i]) + (N(v['adj_' + i]) ?? 0));
-      const adjTot = hasAdj ? sumN(adjDep) : null;
-      const finalKg = (hasAdj ? adjTot : dep) == null ? null : (hasAdj ? adjTot : dep) * m;
+      const T = this.tanks.map((_, i) => i);
+      const kg = x => x == null ? null : (Math.abs(x) < 100 ? x * 1000 : x);
+      const col = p => T.map(i => N(v[p + i]));
+      const isT = arr => !arr.some(x => x != null && Math.abs(x) >= 100);
+      const tx = (x, t) => x == null ? null : (t ? (x / 1000).toFixed(1) : String(Math.round(x * 10) / 10));
+      const preR = col('pre_'), depR = col('dep_'), adjR = col('adj_');
+      const preK = preR.map(kg), depK = depR.map(kg), adjK = adjR.map(kg);
+      const preT = isT(preR), depT = isT(depR);
+      const sumK = a => { const x = a.filter(y => y != null); return x.length ? x.reduce((p, q) => p + q, 0) : null; };
+      const pre = sumK(preK), dep = sumK(depK);
+      const hasAdj = adjK.some(x => x != null);
+      const adjDepK = T.map(i => depK[i] == null ? null : depK[i] + (adjK[i] ?? 0));
+      const adjTot = hasAdj ? sumK(adjDepK) : null;
+      const finalKg = hasAdj ? adjTot : dep;
       const calc = sub(finalKg, pre), dsc = sub(calc, f.kg);
-      const req = sub(N(v.plan), pre);
-      const o = { pre, dep, adjTot, calc, bowL: f.L, bow: f.kg, dsc, dscp: pct(dsc, f.kg), req, reqL: toL(req, f.sg), disc: dsc };
-      this.tanks.forEach((_, i) => { o['adjDep_' + i] = hasAdj ? adjDep[i] : null; });
+      const o = { pre, dep, adjTot, preT, depT, preTxt: tx(pre, preT), depTxt: tx(dep, depT), adjTxt: hasAdj ? tx(adjTot, depT) : null,
+        calc, bowL: f.L, bow: f.kg, dsc, dscp: pct(dsc, f.kg), disc: dsc };
+      T.forEach(i => { o['adjDep_' + i] = hasAdj ? tx(adjDepK[i], depT) : null; });
       return o;
     } },
   AI: { code: 'AI', name: 'Air India', types: ['B787', 'B777'], units: ['L'],
