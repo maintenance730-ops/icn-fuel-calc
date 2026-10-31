@@ -8,6 +8,6 @@
 | UL.png | SriLankan | |
 | LOT.png | LOT Polish | |
 | KC.png | Air Astana | |
-| 3S.png | AeroLogic | 회색 A + 노란 줄 |
-| TK.png | Turkish Airlines | 현재 앱에 없는 항공사 |
-| unknown_blue_S.png | 확인 필요 | 파란 S |
+| 3S.png | AeroLogic | 회색 A + 노란 줄 (새 로고 받을 예정) |
+| TK.png | Turkish Airlines | 안 씀 — 보관만 |
+| SK.png | SAS 스칸디나비아항공 | 안 씀 — 보관만 |

@@ -16,4 +16,4 @@ FUEL 칸 배치 (양식 그대로):
 - 확인용 차이 = IND. FUEL ON BOARD − CALC FUEL ON BOARD (양식에 칸 없음, 앱에서만 표시)
 
 결정(10/31): SUPPL. QTY 기본 단위 **USG** (L도 선택 가능하게), 경고 한도 **±1000kg**
-미정: FOB PRIOR REFUELING이 IND. LDG FUEL과 같은 값인지 / 급유 직전 계기값인지 — 사용자와 추가 논의 필요
+FOB PRIOR REFUELING: 자동 채움 없이 **직접 자유 입력** (사용자 결정 10/31)
