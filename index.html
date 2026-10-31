@@ -341,9 +341,9 @@ const O=(k,o={})=>`<output class="co${o.box?' bxo':''}" data-o="${k}" data-fmt="
 function boxes(t,n){const ch=[...String(t)];const d=ch.filter(c=>/\d/.test(c)).length;let h='<i></i>'.repeat(Math.max(n-d,0));for(const c of ch)h+=/\d/.test(c)?`<i>${c}</i>`:`<b>${c==='-'?'−':c}</b>`;return h;}
 const PM=(k,n)=>`<div class="sgn co${n?' bxo':''}" data-pm="${k}" data-disc="1"${n?` data-box="${n}"`:''}><span class="c"><i data-s="+">+</i><i data-s="-">−</i></span><span class="val">${n?boxes('',n):''}</span></div>`;
 const HINT=(k,pre,suf,o={})=>`<div class="hint" data-h="${k}" data-pre="${esc(pre)}" data-suf="${esc(suf)}"${o.conv?' data-conv="1"':''}${o.disc?' data-hdisc="1"':''}${o.fmt?` data-fmt="${o.fmt}"`:''}></div>`;
-const SG=()=>`<div class="ci"><button class="pmb l" data-sgstep="-1" aria-label="SG 0.001 내리기">−</button><input id="f-sg" data-sg="1" inputmode="decimal" autocomplete="off" value="${esc(s.sg)}" placeholder="0.790" aria-label="SG"><button class="pmb" data-sgstep="1" aria-label="SG 0.001 올리기">+</button></div>`;
+const SG=()=>`<div class="ci"><button class="pmb l" data-sgstep="-1" aria-label="SG 0.0005 내리기">−</button><input id="f-sg" data-sg="1" inputmode="decimal" autocomplete="off" value="${esc(s.sg)}" placeholder="0.790" aria-label="SG"><button class="pmb" data-sgstep="1" aria-label="SG 0.0005 올리기">+</button></div>`;
 const sgDec=()=>String(s.sg||'').replace(/^0?\./,'');
-const SGBOX=(n)=>`<div class="ci bx sgb" style="--n:${n}"><button class="pmb l" data-sgstep="-1" aria-label="SG 0.001 내리기">−</button><span class="pre" style="font-family:var(--f-num);font-size:var(--bxfs,16px);color:var(--pen);padding:0 2px 0 8px;margin-right:auto">Ø.</span><input id="f-sg" data-sgd="1" class="bxi" inputmode="numeric" autocomplete="off" value="${esc(sgDec())}" aria-label="SG 소수점 아래 (예: 7895)"><button class="pmb" data-sgstep="1" aria-label="SG 0.001 올리기">+</button></div>`;
+const SGBOX=(n)=>`<div class="ci bx sgb" style="--n:${n}"><button class="pmb l" data-sgstep="-1" aria-label="SG 0.0005 내리기">−</button><span class="pre" style="font-family:var(--f-num);font-size:var(--bxfs,16px);color:var(--pen);padding:0 2px 0 8px;margin-right:auto">Ø.</span><input id="f-sg" data-sgd="1" class="bxi" inputmode="numeric" autocomplete="off" value="${esc(sgDec())}" aria-label="SG 소수점 아래 (예: 7895)"><button class="pmb" data-sgstep="1" aria-label="SG 0.0005 올리기">+</button></div>`;
 const BW=()=> s.uplifts.length<=1
   ? `<div class="ci">${''}<input id="f-up0" data-up="0" data-f="v" inputmode="decimal" autocomplete="off" value="${esc((s.uplifts[0]||{}).v)}" aria-label="급유량"><button class="pmb" data-addup="1" aria-label="급유차 추가">+</button></div>`
   : `<output class="co" data-bwtot="1"></output><div class="hint">${s.uplifts.length}대 합산 · 아래에서 수정</div>`;
@@ -629,7 +629,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.tu){S.tools.cu=b.dataset.tu;$$('[data-tu]').forEach(x=>x.setAttribute('aria-pressed',x===b));return update();}
   if(S.cur==='TOOLS') return;
   const id=S.cur;
-  if(b.dataset.sgstep){const c=parseFloat(s.sg)||0.79,dp=Math.max(3,(String(s.sg).split('.')[1]||'').length);s.sg=(c+0.001*+b.dataset.sgstep).toFixed(dp);$$('#f-sg').forEach(x=>x.value=x.dataset.sgd?sgDec():s.sg);touched();return update();}
+  if(b.dataset.sgstep){const c=parseFloat(s.sg)||0.79;let t=(Math.round((c+0.0005*+b.dataset.sgstep)*10000)/10000).toFixed(4);if(t.endsWith('0'))t=t.slice(0,-1);s.sg=t;$$('#f-sg').forEach(x=>x.value=x.dataset.sgd?sgDec():s.sg);touched();return update();}
   if(b.dataset.bu){s.bu=b.dataset.bu;touched();return render();}
   if(b.dataset.gs!==undefined){v['gs_'+b.dataset.gs]=b.dataset.gv;$$(`[data-gs="${b.dataset.gs}"]`).forEach(x=>x.setAttribute('aria-pressed',x===b));touched();return save();}
   if(b.dataset.addup){s.uplifts.push({v:'',r:''});if(s.uplifts.length===2&&!s.uplifts[0].v){}touched();render();const n=$('#f-up'+(s.uplifts.length-1));n&&n.focus();return;}
