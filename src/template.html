@@ -48,11 +48,13 @@ button{cursor:pointer}
 
 .chips{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;min-width:70px;padding:6px 11px 5px;border:1.5px solid var(--line);background:var(--card);border-radius:8px;text-align:left}
+.chip{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:7px;min-width:70px;padding:6px 10px 6px 6px;border:1.5px solid var(--line);background:var(--card);border-radius:8px;text-align:left}
+.chip .lg{width:30px;height:30px;border-radius:6px;background:#fff;display:grid;place-items:center;overflow:hidden;flex:none;box-shadow:0 0 0 1px var(--line)}.chip .lg img{width:28px;height:28px;object-fit:contain}
+.chip .ct{display:flex;flex-direction:column;align-items:flex-start}
 .chip b{font-family:var(--f-disp);font-size:20px;letter-spacing:.04em;line-height:1}
-.chip span{font-size:11px;color:var(--muted);white-space:nowrap}
+.chip .ct>span{font-size:11px;color:var(--muted);white-space:nowrap}
 .chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
-.chip[aria-pressed="true"] span{color:inherit;opacity:.75}
+.chip[aria-pressed="true"] .ct>span{color:inherit;opacity:.75}
 
 .head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .head h1{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(20px,6.4vw,27px)!important}
@@ -66,6 +68,7 @@ button{cursor:pointer}
 .sw.i{background:var(--in-bg)} .sw.a{background:color-mix(in srgb,var(--pen) 13%,var(--card))}
 .acts{display:flex;gap:6px;flex-shrink:0}
 .btn{white-space:nowrap;min-width:62px;text-align:center;border:1.5px solid var(--line);background:var(--card);border-radius:7px;padding:6px 11px;font-size:13px;font-weight:500}
+.btn:disabled{opacity:.4;cursor:default}
 .btn.danger{color:var(--bad);border-color:var(--bad)}
 .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:7px;overflow:hidden}
 .seg button{border:0;background:var(--card);padding:4px 10px;font-size:12.5px;font-family:var(--f-num);color:var(--muted)}
@@ -77,16 +80,21 @@ button{cursor:pointer}
 .f-UL{--tint:#f4f3f9;--lbl:#dcdbe3;--entry:#ffffff;--frame:#2a2a33}
 .f-LOT{--tint:#e2ecf6;--lbl:transparent;--entry:#eef4fb;--frame:#1c2632}
 .f-KC{--tint:#edf3e3;--lbl:transparent;--entry:#f8fbf2;--frame:#22281d}
+.f-3S{--tint:#f1f2f3;--lbl:transparent;--entry:#ffffff;--frame:#3b4047}
+.hatch{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--frame) 45%,transparent) 0 1.5px,transparent 1.5px 6px)!important}
+.f3c{vertical-align:top!important}.f3c .lb{font-size:11px;padding:4px 5px 2px;font-weight:700}.f3c .ci input{font-size:15px}.f3c .co{font-size:15px}.f-3S .pmb{min-width:22px;font-size:15px}.f-3S .circ{justify-content:flex-start;padding:0 4px 2px}
 .f-AI{--tint:#f5f0e1;--lbl:#d3d3d0;--entry:#fbf2c2;--frame:#30302c}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .f-EK{--tint:#1a2129;--entry:#121820;--frame:#7f8d9c}
 :root:not([data-theme="light"]) .f-UL{--tint:#1c1b26;--lbl:#2a2936;--entry:#13121b;--frame:#8a88a0}
 :root:not([data-theme="light"]) .f-LOT{--tint:#16212d;--entry:#0f1822;--frame:#7f95ad}
 :root:not([data-theme="light"]) .f-KC{--tint:#1a2318;--entry:#121a10;--frame:#8a9a7c}
+:root:not([data-theme="light"]) .f-3S{--tint:#1b1f24;--entry:#11151a;--frame:#8d96a2}
 :root:not([data-theme="light"]) .f-AI{--tint:#24201a;--lbl:#34312b;--entry:#2b2611;--frame:#a09a86}}
 :root[data-theme="dark"] .f-EK{--tint:#1a2129;--entry:#121820;--frame:#7f8d9c}
 :root[data-theme="dark"] .f-UL{--tint:#1c1b26;--lbl:#2a2936;--entry:#13121b;--frame:#8a88a0}
 :root[data-theme="dark"] .f-LOT{--tint:#16212d;--entry:#0f1822;--frame:#7f95ad}
 :root[data-theme="dark"] .f-KC{--tint:#1a2318;--entry:#121a10;--frame:#8a9a7c}
+:root[data-theme="dark"] .f-3S{--tint:#1b1f24;--entry:#11151a;--frame:#8d96a2}
 :root[data-theme="dark"] .f-AI{--tint:#24201a;--lbl:#34312b;--entry:#2b2611;--frame:#a09a86}
 .form{background:var(--tint);border:2px solid var(--frame);border-radius:1px;overflow-x:auto;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 12%,transparent),0 6px 18px -10px color-mix(in srgb,var(--ink) 35%,transparent)}
 table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
@@ -210,6 +218,7 @@ table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
 <script>
 /*__CALC__*/
 /*__SAMPLES__*/
+/*__LOGOS__*/
 (function(){
 const KEY='icnfuel.v3';
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}};
@@ -218,7 +227,7 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 let S=load()||{};
 S.cur=S.cur||'EK'; S.data=S.data||{}; S.sample=S.sample||{}; if(S.limit==null) S.limit='1000';
 S.tools=S.tools||{cv:'',cu:'L',csg:'0.790',hh:'',mm:'',qt:''};
-const ORDER=['EK','UL','LOT','KC','AI'];
+const ORDER=['EK','UL','LOT','KC','AI','3S'];
 const DEF_SUP={EK:'ASIANA AIRPORT',KC:'KAS'};
 if(!S.mig1){ if(S.data.KC){S.data.KC.bu='USG'; delete S.data.KC.vals.depUnit;} S.mig1=true; }
 const st=id=>{ if(!S.data[id]){S.data[id]={sg:'',bu:AIRLINES[id].units[0],uplifts:[{v:'',r:''}],vals:{}};S.sample[id]=false;} return S.data[id]; };
@@ -339,6 +348,15 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb" style="font-size:14px;font-weight:700">
 <tr><td class="lb">SUPPLIER</td><td colspan="2">${I('sup',{txt:1,al:'Supplier'})}</td></tr>
 </table></div>`,
 
+'3S':()=>`<div class="form f-3S uc">
+<table class="fm"><colgroup><col style="width:24%"><col style="width:28%"><col style="width:26%"><col></colgroup>
+<tr><th class="ttl" colspan="4">FUEL</th></tr>
+<tr><td class="f3c"><div class="lb">Suppl. Qty</div>${UNITS(['USG','L'])}${BW()}</td><td class="f3c"><div class="lb">x Density</div>${SG()}</td><td class="f3c"><div class="lb">= Fuel Uplift</div>${O('up')}${HINT('upL','≈ ',' L')}</td><td class="hatch"></td></tr>
+<tr><td class="hatch"></td><td class="f3c"><div class="lb">+ FOB Prior Refueling</div>${I('prior',{al:'FOB prior refueling'})}</td><td class="f3c"><div class="lb">= Calc Fuel On Board</div>${O('calc')}</td><td class="f3c"><div class="lb">Ind. Fuel On Board</div>${I('ind',{al:'Indicated fuel on board'})}</td></tr>
+<tr><td class="f3c"><div class="lb">Ind. LDG Fuel</div>${I('ldg',{al:'Indicated landing fuel'})}</td><td class="f3c"><div class="lb">Fuel Type</div>${I('ft',{txt:1,al:'Fuel type'})}</td><td class="f3c"><div class="lb">Fuel Supplier</div>${I('sup',{txt:1,al:'Fuel supplier'})}</td><td class="f3c"><div class="lb">Minimum Block Fuel</div>${I('mbf',{al:'Minimum block fuel'})}</td></tr>
+<tr><td colspan="2" class="memo">▶ 확인용 (양식에 없는 칸)<br>IND. FOB − CALC FOB</td><td colspan="2">${O('diff',{fmt:'s',disc:1})}${HINT('diffp','',' %',{fmt:'p'})}</td></tr>
+</table></div>`,
+
 AI:()=>`<div class="form f-AI" style="--bxfs:15px">
 <table class="fm"><colgroup><col><col style="width:52%"></colgroup>
 <tr><td class="lb">Arrival Fuel (Kg)</td><td>${I('arr',{al:'Arrival fuel',box:6})}${HINT('gnd','지상 사용 ',' kg')}</td></tr>
@@ -366,10 +384,10 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 };
 
 function airlineView(id){
-  A=AIRLINES[id]; s=st(id); v=s.vals; for(const k of ['ft1','grade']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
+  A=AIRLINES[id]; s=st(id); v=s.vals; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
   const type=v.acType||A.types[0];
   let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.72em">${esc(type)}</span></h1>
-    <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp" aria-pressed="${!!S.sample[id]}">예시</button></div></div>
+    <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp" aria-pressed="${!!S.sample[id]}"${SAMPLES[id]?'':' disabled title="예시값 없음"'}>예시</button></div></div>
     ${A.types.length>1?`<div class="seg" role="group" aria-label="기종" style="align-self:flex-start">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}`;
   h+=FORMS[id]();
   if(s.uplifts.length>1){
@@ -434,6 +452,11 @@ const EXPL={
     {t:'<b>Calculated Uplift</b>',d:'탱크 기준으로 늘어난 양',fx:`Depart${o.adjTot!=null?'(Adj)':''} − Pre-Fuel`,nx:o.calc==null?null:`${f1(o.adjTot??o.dep)} − ${f1(o.pre)} = <strong>${f1(o.calc)} kg</strong>`},
     {t:'<b>Discrepancy</b> (Calculated − Bowser)',d:'⚠ 다른 항공사와 순서가 반대: 탱크 기준 − 급유차 기준',fx:'Calculated − Bowser kg',nx:o.dsc==null?null:`${f1(o.calc)} − ${f1(o.bow)} = <strong>${s1(o.dsc)} kg</strong>`});
     return st;},
+  '3S':(f,o)=>{const u=s.bu;return [
+    {t:'<b>Fuel Uplift</b> 실제 급유량',d:u==='USG'?'영수증 SUPPL. QTY(USG)를 리터로 바꾼 뒤 DENSITY를 곱한 값 (1 USG = 3.78541 L)':'영수증 리터 × DENSITY',fx:u==='USG'?'SUPPL. QTY × 3.78541 × DENSITY':'SUPPL. QTY × DENSITY',nx:f.kg==null?null:(u==='USG'?`${f1(f.vol)} × 3.78541 × ${f1v(s.sg)} = <strong>${f1(f.kg)} kg</strong>`:`${f1(f.vol)} × ${f1v(s.sg)} = <strong>${f1(f.kg)} kg</strong>`)},
+    {t:'<b>Calc Fuel On Board</b>',d:'급유량에 급유 전 FOB를 더한 값. FOB PRIOR REFUELING은 직접 입력',fx:'Fuel Uplift + FOB Prior Refueling',nx:o.calc==null?null:`${f1(o.up)} + ${f1(nv(v.prior))} = <strong>${f1(o.calc)} kg</strong>`},
+    {t:'<b>IND − CALC FOB</b> 확인',d:'계기 FOB와 계산 FOB의 차이. 0에 가까울수록 정상. 양식에 적는 칸은 아님',fx:'Ind. Fuel On Board − Calc Fuel On Board',nx:o.diff==null?null:`${f1(nv(v.ind))} − ${f1(o.calc)} = <strong>${s1(o.diff)} kg</strong>`},
+  ];},
   AI:(f,o)=>{const T=A.tanks.map((_,i)=>i);return [
     {t:'<b>Total X</b> 급유 전 탱크 합계',d:'In Tank (X) 칸 합계',fx:'X 합',nx:tsum(0,T.map(i=>'pre_'+i),o.X)},
     {t:'<b>Total Y</b> 출발 탱크 합계',d:'Departure (Y) 칸 합계',fx:'Y 합',nx:tsum(0,T.map(i=>'dep_'+i),o.Y)},
@@ -496,12 +519,12 @@ function update(){
   $$('[data-bwtot]').forEach(el=>el.textContent=f1(f.vol));
   if(S.explain&&$('#exp')) $('#exp').innerHTML=explainHTML(id,f,o,dState);
   const tag=dState==='ok'?`<span class="tag ok">±${esc(S.limit)} 이내</span>`:dState==='over'?`<span class="tag over">±${esc(S.limit)} 초과</span>`:'<span class="tag none">입력 대기</span>';
-  const lab=id==='LOT'?'Remaining − ARR':id==='AI'?'Actual − Calc':'Discrepancy';
+  const lab=id==='LOT'?'Remaining − ARR':id==='AI'?'Actual − Calc':id==='3S'?'IND − CALC FOB':'Discrepancy';
   $('#bar').innerHTML=`<div class="bar-in"><div><span class="l">${A.code} ${lab}</span><span class="v">${o.disc==null?'–':s1(o.disc)+' kg'}</span></div>${tag}</div>`;
   save();
 }
 function render(){
-  $('#chips').innerHTML=ORDER.map(id=>{const a=AIRLINES[id];return `<button class="chip" aria-pressed="${S.cur===id}" data-go="${id}"><b>${a.code}</b><span>${esc(a.name)}</span></button>`;}).join('')+`<button class="chip" aria-pressed="${S.cur==='TOOLS'}" data-go="TOOLS"><b>⚙︎</b><span>도구 · 설정</span></button>`;
+  $('#chips').innerHTML=ORDER.map(id=>{const a=AIRLINES[id];return `<button class="chip" aria-pressed="${S.cur===id}" data-go="${id}">${LOGOS[id]?`<span class="lg"><img src="${LOGOS[id]}" alt=""></span>`:''}<span class="ct"><b>${a.code}</b><span>${esc(a.name)}</span></span></button>`;}).join('')+`<button class="chip" aria-pressed="${S.cur==='TOOLS'}" data-go="TOOLS"><span class="ct"><b>⚙︎</b><span>도구 · 설정</span></span></button>`;
   $('#view').innerHTML=S.cur==='TOOLS'?toolsView():airlineView(S.cur);
   update();
 }
@@ -536,8 +559,8 @@ document.addEventListener('click',e=>{
   if(b.id==='xbtn'){S.explain=!S.explain;b.setAttribute('aria-expanded',S.explain);$('#exp').hidden=!S.explain;return update();}
   if(b.id==='clr'){
     if(!clrArm){clrArm=1;b.textContent='한 번 더';setTimeout(()=>{clrArm=0;if(document.body.contains(b))b.textContent='비우기';},2500);return;}
-    clrArm=0;S.data[id]={sg:s.sg,bu:s.bu,uplifts:[{v:'',r:''}],vals:{acType:v.acType,ft1:'JET A-1',grade:'JET A-1',sup:DEF_SUP[id]}};S.sample[id]=false;render();toast('입력값을 비웠어요 (SG·단위·기종은 유지)');return;}
-  if(b.id==='smp'){S.data[id]=clone(SAMPLES[id]);S.sample[id]=true;render();toast('양식 사진 예시값을 불러왔어요');return;}
+    clrArm=0;S.data[id]={sg:s.sg,bu:s.bu,uplifts:[{v:'',r:''}],vals:{acType:v.acType,ft1:'JET A-1',grade:'JET A-1',ft:'JET A-1',sup:DEF_SUP[id]}};S.sample[id]=false;render();toast('입력값을 비웠어요 (SG·단위·기종은 유지)');return;}
+  if(b.id==='smp'){if(!SAMPLES[id])return;S.data[id]=clone(SAMPLES[id]);S.sample[id]=true;render();toast('양식 사진 예시값을 불러왔어요');return;}
 });
 render();
 })();

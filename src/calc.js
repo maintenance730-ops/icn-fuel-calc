@@ -79,6 +79,15 @@ const AIRLINES = {
       const calc = sub(Y, X), dkg = sub(f.kg, calc);
       return { X, Y, gnd: sub(N(v.arr), X), planL: toL(N(v.plan), f.sg), upL: f.L, act: f.kg, calc, dkg, dp: pct(dkg, f.kg), disc: dkg };
     } },
+  '3S': { code: '3S', name: 'AeroLogic', types: ['B777F'], units: ['USG', 'L'],
+    form: 'Aircraft Journey Log B777F — Fuel',
+    // FUEL UPLIFT = SUPPL.QTY × DENSITY, CALC FOB = UPLIFT + FOB PRIOR(자유 입력), 확인 = IND FOB − CALC FOB
+    compute(v, f) {
+      const up = f.kg, prior = N(v.prior), ind = N(v.ind);
+      const calc = (up == null || prior == null) ? null : up + prior;
+      const diff = sub(ind, calc);
+      return { up, upL: f.L, calc, diff, diffp: pct(diff, up), disc: diff };
+    } },
 };
 
 function runAirline(id, st) {

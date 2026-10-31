@@ -1,4 +1,4 @@
-# 보관 중인 양식 (아직 앱 미적용)
+# 양식 사진 (AeroLogic: 2026-10-31 앱 적용 완료, 예시값은 영수증 받은 뒤)
 
 ## AeroLogic (3S) — Aircraft Journey Log B777F (OF001 Rev.06) — 3S_aerologic_journey_log.jpg
 - 받은 날: 2026-10-31. 사용자 요청: 거의 안 쓰니 **항공사 목록 맨 끝**에 배치
