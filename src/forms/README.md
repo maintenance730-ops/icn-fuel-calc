@@ -15,4 +15,5 @@ FUEL 칸 배치 (양식 그대로):
 - CALC FUEL ON BOARD = FUEL UPLIFT + FOB PRIOR REFUELING
 - 확인용 차이 = IND. FUEL ON BOARD − CALC FUEL ON BOARD (양식에 칸 없음, 앱에서만 표시)
 
-영수증 받으면 확인할 것: SUPPL. QTY 단위(L/USG), 한도(±1000kg 동일?), FOB PRIOR = IND. LDG FUEL 관계
+결정(10/31): SUPPL. QTY 기본 단위 **USG** (L도 선택 가능하게), 경고 한도 **±1000kg**
+미정: FOB PRIOR REFUELING이 IND. LDG FUEL과 같은 값인지 / 급유 직전 계기값인지 — 사용자와 추가 논의 필요
