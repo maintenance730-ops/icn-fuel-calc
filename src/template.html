@@ -83,18 +83,31 @@ button{cursor:pointer}
 .f-3S{--tint:#f1f2f3;--lbl:transparent;--entry:#ffffff;--frame:#3b4047}
 .hatch{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--frame) 45%,transparent) 0 1.5px,transparent 1.5px 6px)!important}
 .f3c{vertical-align:top!important}.f3c .lb{font-size:11px;padding:4px 5px 2px;font-weight:700}.f3c .ci input{font-size:15px}.f3c .co{font-size:15px}.f-3S .pmb{min-width:22px;font-size:15px}.f-3S .circ{justify-content:flex-start;padding:0 4px 2px}
+.f-ELB{--tint:#f3f4f7;--lbl:transparent;--entry:#ffffff;--frame:#c9ced6;border-width:1px;border-radius:12px;padding:4px 0 8px;font-family:var(--f-body)}
+.f-ELB .eh{display:flex;align-items:center;gap:8px;padding:10px 14px 8px;border-bottom:1px solid var(--line)}.f-ELB .eh b{font-size:17px}.f-ELB .ei{font-size:18px}.f-ELB .es{margin-left:auto;font-size:11.5px;color:var(--muted);font-family:var(--f-num)}
+.f-ELB .eh2{padding:12px 14px 4px;font-weight:700;font-size:15px;border-top:1px solid var(--line);margin-top:6px}
+.f-ELB .er{display:grid;grid-template-columns:40% minmax(0,1fr);gap:10px;align-items:start;padding:7px 14px}
+.f-ELB .el{font-size:14px;color:var(--ink);padding-top:9px;line-height:1.25}.f-ELB .el small{display:block;font-size:10.5px;color:var(--memo-fg)}
+.f-ELB .ci{border:1px solid var(--frame);border-radius:7px;overflow:hidden;min-height:38px}
+.f-ELB .eu{display:flex;align-items:center;gap:6px}.f-ELB .eu .ci{flex:1;min-width:0}.f-ELB .eu>span{font-size:12px;color:var(--muted)}
+.f-ELB .lu{display:inline-flex;gap:3px}.f-ELB .lu button{border:1px solid var(--frame);background:var(--entry);border-radius:99px;padding:4px 9px;font-size:12px;color:var(--muted)}.f-ELB .lu button[aria-pressed="true"]{background:#2e9e5b;border-color:#2e9e5b;color:#fff}
+.f-ELB .rq{display:none;font-size:11px;color:#d23b3b;margin-top:2px}.f-ELB .ci:has(input:placeholder-shown)~.rq,.f-ELB .eu:has(input:placeholder-shown)~.rq{display:block}
+.f-ELB .ek{display:flex;align-items:baseline;justify-content:flex-end;gap:5px;margin-top:4px}.f-ELB .ek .co{min-height:0;padding:3px 6px;border-radius:6px;font-size:15px}.f-ELB .ek>span{font-size:12px;color:var(--muted)}
+.f-ELB .ek.big{margin-top:0}.f-ELB .ek.big .co{padding:8px 8px;font-size:17px;flex:1}
 .f-AI{--tint:#f5f0e1;--lbl:#d3d3d0;--entry:#fbf2c2;--frame:#30302c}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .f-EK{--tint:#1a2129;--entry:#121820;--frame:#7f8d9c}
 :root:not([data-theme="light"]) .f-UL{--tint:#1c1b26;--lbl:#2a2936;--entry:#13121b;--frame:#8a88a0}
 :root:not([data-theme="light"]) .f-LOT{--tint:#16212d;--entry:#0f1822;--frame:#7f95ad}
 :root:not([data-theme="light"]) .f-KC{--tint:#1a2318;--entry:#121a10;--frame:#8a9a7c}
 :root:not([data-theme="light"]) .f-3S{--tint:#1b1f24;--entry:#11151a;--frame:#8d96a2}
+:root:not([data-theme="light"]) .f-ELB{--tint:#161b22;--entry:#0f1319;--frame:#3a4350}
 :root:not([data-theme="light"]) .f-AI{--tint:#24201a;--lbl:#34312b;--entry:#2b2611;--frame:#a09a86}}
 :root[data-theme="dark"] .f-EK{--tint:#1a2129;--entry:#121820;--frame:#7f8d9c}
 :root[data-theme="dark"] .f-UL{--tint:#1c1b26;--lbl:#2a2936;--entry:#13121b;--frame:#8a88a0}
 :root[data-theme="dark"] .f-LOT{--tint:#16212d;--entry:#0f1822;--frame:#7f95ad}
 :root[data-theme="dark"] .f-KC{--tint:#1a2318;--entry:#121a10;--frame:#8a9a7c}
 :root[data-theme="dark"] .f-3S{--tint:#1b1f24;--entry:#11151a;--frame:#8d96a2}
+:root[data-theme="dark"] .f-ELB{--tint:#161b22;--entry:#0f1319;--frame:#3a4350}
 :root[data-theme="dark"] .f-AI{--tint:#24201a;--lbl:#34312b;--entry:#2b2611;--frame:#a09a86}
 .form{background:var(--tint);border:2px solid var(--frame);border-radius:1px;overflow-x:auto;box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 12%,transparent),0 6px 18px -10px color-mix(in srgb,var(--ink) 35%,transparent)}
 table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
@@ -227,6 +240,7 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 let S=load()||{};
 S.cur=S.cur||'EK'; S.data=S.data||{}; S.sample=S.sample||{}; if(S.limit==null) S.limit='1000';
 S.tools=S.tools||{cv:'',cu:'L',csg:'0.790',hh:'',mm:'',qt:''};
+const FEAT={elb:true};
 const ORDER=['EK','UL','LOT','KC','AI','3S'];
 const DEF_SUP={EK:'ASIANA AIRPORT',KC:'KAS'};
 if(!S.mig1){ if(S.data.KC){S.data.KC.bu='USG'; delete S.data.KC.vals.depUnit;} S.mig1=true; }
@@ -289,12 +303,12 @@ return `<div class="form f-UL uc" style="--bxfs:15px">
 <tr><th class="ttl" colspan="4">Fuel Data</th></tr>
 <tr><th></th><th>Tank<br>No</th><th>Pre Uplift<br>Fuel</th><th>Departure<br>Fuel</th></tr>
 ${A.tanks.map((t,i)=>`<tr><td class="lc">${L[i]}</td><td class="lb faint tn">${t}</td><td>${I('pre_'+i,{al:t+' pre uplift',box:5})}</td><td>${I('dep_'+i,{al:t+' departure',box:5})}</td></tr>`).join('')}
-<tr><td class="shade"></td><td class="lb tn">TTL <span class="k">L</span></td><td>${O('L',{box:5})}</td><td>${O('E',{box:5})}</td></tr>
+<tr><td class="shade"></td><td class="lb tn">TTL <span class="k">L</span></td><td>${O('L',{box:5})}</td><td>${O('Esum',{box:5})}</td></tr>
 <tr><td class="cap" colspan="4">Stick reading before / after refuelling — 사선(/) 처리</td></tr>
 </table>
 <table class="fm"><colgroup><col style="width:31%"><col style="width:12%"><col><col></colgroup>
-<tr><td class="shade" rowspan="5"><div class="cap">FLUID DATA</div></td><td class="lb" colspan="2">Dep fuel <span class="k">E</span><span class="mk">▶ 기장 기입 (FLT CREW write)</span></td><td>${O('E')}</td></tr>
-<tr><td class="lb" colspan="2">Pre uplift <span class="k">F</span></td><td>${O('F')}</td></tr>
+<tr><td class="shade" rowspan="5"><div class="cap">FLUID DATA</div></td><td class="lb" colspan="2">Dep fuel <span class="k">E</span><span class="mk">▶ 기장 기입 (FLT CREW write) · 비우면 탱크 합</span></td><td>${I('Ein',{al:'E Dep fuel (flight crew)'})}${HINT('Esum','탱크 합 ',' kg')}</td></tr>
+<tr><td class="lb" colspan="2">Pre uplift <span class="k">F</span><span class="mk">▶ 비우면 TTL L</span></td><td>${I('Fin',{al:'F Pre uplift'})}${HINT('L','TTL L ',' kg')}</td></tr>
 <tr><td class="lb" colspan="2">Act uplift <span class="k">G</span></td><td>${O('G')}</td></tr>
 <tr><td class="lb" colspan="2">Cal uplift <span class="k">H=E−F</span></td><td>${O('H')}</td></tr>
 <tr><td class="lb" colspan="2">Discrepancy <span class="k">G−H</span></td><td>${PM('GH')}</td></tr>
@@ -357,7 +371,24 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb" style="font-size:14px;font-weight:700">
 <tr><td colspan="2" class="memo">▶ 확인용 (양식에 없는 칸)<br>IND. FOB − CALC FOB</td><td colspan="2">${O('diff',{fmt:'s',disc:1})}${HINT('diffp','',' %',{fmt:'p'})}</td></tr>
 </table></div>`,
 
-AI:()=>`<div class="form f-AI" style="--bxfs:15px">
+AI:()=>v.mode==='paper'?FORMS.AIP():FORMS.AIE(),
+AIE:()=>{const RQ='<span class="rq">Required</span>';const row=(lab,cell,extra='')=>`<div class="er"><div class="el">${lab}</div><div class="ev">${cell}${extra}</div></div>`;
+return `<div class="form f-ELB">
+<div class="eh"><span class="ei">⛽</span><b>Fuel Record</b><span class="es">ELB · ${esc(v.acType||'B787')}</span></div>
+${row('Fuel On Board<small>ELB 왼쪽 화면 값 (도착 FOB)</small>',`<div class="eu">${I('efob',{al:'ELB fuel on board',ph:' '})}<span>kg</span></div>`,RQ)}
+${row('Receipt No.',I('erc',{txt:1,al:'Receipt no',ph:' '}),RQ)}
+${row('Total loaded',`<div class="eu">${I('eq',{al:'Total loaded',ph:' '})}<span class="lu"><button data-eu="L" aria-pressed="${v.eu!=='USG'}">Lt</button><button data-eu="USG" aria-pressed="${v.eu==='USG'}">USG</button></span></div>`,RQ+HINT('eLh','= ',' L'))}
+${row('Specific gravity',I('esg',{al:'Specific gravity',ph:' '}),RQ+`<div class="ek">${O('eKg')} <span>kg</span></div>`)}
+${row('Total fuel',`<div class="eu">${I('etot',{al:'Total fuel',ph:' '})}<span>kg</span></div>`,RQ+HINT('tsum','탱크 합 ',' kg'))}
+${row('Fuel on board<br>after uplift',`<div class="ek big">${O('after')} <span>kg</span></div>`)}
+${row('Fuel difference',`<div class="ek big">${O('ediff',{fmt:'s',disc:1})} <span>kg</span></div>`,'<div class="hint" style="text-align:left">▶ 이 값을 ELB에 입력</div>')}
+${row('Vendor',I('evd',{txt:1,al:'Vendor',ph:'ASIANA AIRPORT'}),'')}
+<div class="eh2">Fuel Distribution</div>
+${row('LH Tank',`<div class="eu">${I('elh',{al:'LH tank',ph:' '})}<span>kg</span></div>`,RQ)}
+${row('CTR Tank',`<div class="eu">${I('ectr',{al:'CTR tank',ph:' '})}<span>kg</span></div>`,RQ)}
+${row('RH Tank',`<div class="eu">${I('erh',{al:'RH tank',ph:' '})}<span>kg</span></div>`,RQ)}
+</div>`;},
+AIP:()=>`<div class="form f-AI" style="--bxfs:15px">
 <table class="fm"><colgroup><col><col style="width:52%"></colgroup>
 <tr><td class="lb">Arrival Fuel (Kg)</td><td>${I('arr',{al:'Arrival fuel',box:6})}${HINT('gnd','지상 사용 ',' kg')}</td></tr>
 </table>
@@ -384,11 +415,11 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 };
 
 function airlineView(id){
-  A=AIRLINES[id]; s=st(id); v=s.vals; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
+  A=AIRLINES[id]; s=st(id); v=s.vals; if(id==='AI'&&!FEAT.elb) v.mode='paper'; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
   const type=v.acType||A.types[0];
   let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.72em">${esc(type)}</span></h1>
     <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp" aria-pressed="${!!S.sample[id]}"${SAMPLES[id]?'':' disabled title="예시값 없음"'}>예시</button></div></div>
-    ${A.types.length>1?`<div class="seg" role="group" aria-label="기종" style="align-self:flex-start">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}`;
+    ${(A.types.length>1||(id==='AI'&&FEAT.elb))?`<div style="display:flex;gap:8px;flex-wrap:wrap">${id==='AI'&&FEAT.elb?`<div class="seg" role="group" aria-label="기록 방식"><button data-aimode="elog" aria-pressed="${v.mode!=='paper'}">ELB 전자로그</button><button data-aimode="paper" aria-pressed="${v.mode==='paper'}">종이 테크로그</button></div>`:''}${A.types.length>1?`<div class="seg" role="group" aria-label="기종">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}</div>`:''}`;
   h+=FORMS[id]();
   if(s.uplifts.length>1){
     h+=`<div class="aux"><h2>급유 합산 (여러 대) · 단위 ${UNAME[s.bu]}</h2><div class="ups">${s.uplifts.map((u,i)=>`<div class="up"><span class="n">#${i+1}</span><div class="ci"><input id="f-up${i}" data-up="${i}" data-f="v" inputmode="decimal" autocomplete="off" value="${esc(u.v)}" aria-label="급유 ${i+1}"></div><div class="ci"><input id="f-rc${i}" data-up="${i}" data-f="r" class="txt" autocomplete="off" value="${esc(u.r)}" placeholder="영수증" aria-label="영수증 ${i+1}"></div><button class="x" data-del="${i}" aria-label="급유 ${i+1} 삭제">×</button></div>`).join('')}<button class="add" data-addup="1">+ 급유차 추가</button></div></div>`;
@@ -422,8 +453,9 @@ const EXPL={
   UL:(f,o)=>{const T=A.tanks.map((_,i)=>i);return [
     {t:'<b>L</b> 급유 전 탱크 합계',d:'탱크별 Pre Uplift Fuel을 모두 더한 값',fx:'L/O + L/I + CTR + R/I + R/O + TRIM',nx:tsum(0,T.map(i=>'pre_'+i),o.L)},
     {t:'<b>J − K − L</b> 도착 체크',d:'도착 FOB에서 지상 사용량과 급유 전 합계를 뺀 값. 0이면 탱크 값이 맞음',fx:'J − K − L',nx:o.JKL==null?null:`${f1(nv(v.J))} − ${f1(nv(v.K)??0)} − ${f1(o.L)} = <strong>${s1(o.JKL)||'0'} kg</strong>`},
-    {t:'<b>E</b> 출발 연료',d:'탱크별 Departure Fuel 합계',fx:'탱크 Departure 합',nx:tsum(0,T.map(i=>'dep_'+i),o.E)},
-    {t:'<b>F</b> 급유 전 연료',d:'위에서 계산한 TTL L과 같은 값',fx:'F = L',nx:o.F==null?null:`<strong>${f1(o.F)} kg</strong>`},
+    {t:'<b>Departure 탱크 합</b>',d:'탱크별 Departure Fuel 합계 (TTL 줄)',fx:'탱크 Departure 합',nx:tsum(0,T.map(i=>'dep_'+i),o.Esum)},
+    {t:'<b>E</b> DEP FUEL',d:o.Eauto?'기장 기입값이 비어 있어서 탱크 합을 그대로 사용':'기장이 적은 값 사용 (탱크 합과 다를 수 있음)',fx:o.Eauto?'E = 탱크 합':'E = 기장 기입값',nx:o.E==null?null:`<strong>${f1(o.E)} kg</strong>${o.EvsSum?` (탱크 합과 차이 ${s1(o.EvsSum)} kg)`:''}`},
+    {t:'<b>F</b> PRE UPLIFT',d:o.Fauto?'비어 있어서 TTL L(급유 전 탱크 합)을 사용':'직접 적은 값 사용',fx:o.Fauto?'F = TTL L':'F = 기입값',nx:o.F==null?null:`<strong>${f1(o.F)} kg</strong>`},
     fuelStep(f,'<b>G</b> 실제 급유량 (Act uplift)'),
     {t:'<b>H</b> 계산 급유량 (Cal uplift)',d:'탱크 기준으로 늘어난 양',fx:'E − F',nx:sub2(o.E,o.F,o.H)},
     {t:'<b>G − H</b> Discrepancy',d:'급유차 기준(G)과 탱크 기준(H)의 차이. 양식에는 +/− 중 하나에 동그라미',fx:'G − H',nx:o.GH==null?null:`${f1(o.G)} − ${f1(o.H)} = <strong>${s1(o.GH)} kg</strong>`},
@@ -457,7 +489,13 @@ const EXPL={
     {t:'<b>Calc Fuel On Board</b>',d:'급유량에 급유 전 FOB를 더한 값. FOB PRIOR REFUELING은 직접 입력',fx:'Fuel Uplift + FOB Prior Refueling',nx:o.calc==null?null:`${f1(o.up)} + ${f1(nv(v.prior))} = <strong>${f1(o.calc)} kg</strong>`},
     {t:'<b>IND − CALC FOB</b> 확인',d:'계기 FOB와 계산 FOB의 차이. 0에 가까울수록 정상. 양식에 적는 칸은 아님',fx:'Ind. Fuel On Board − Calc Fuel On Board',nx:o.diff==null?null:`${f1(nv(v.ind))} − ${f1(o.calc)} = <strong>${s1(o.diff)} kg</strong>`},
   ];},
-  AI:(f,o)=>{const T=A.tanks.map((_,i)=>i);return [
+  AI:(f,o)=>{ if(v.mode!=='paper'){const usg=v.eu==='USG';return [
+    {t:'<b>급유 kg</b> (Specific gravity 아래 kg)',d:usg?'영수증 Total loaded(USG)를 리터로 바꾼 뒤 SG를 곱함':'영수증 리터 × 영수증 S.G',fx:usg?'USG × 3.78541 × SG':'Lt × SG',nx:o.eKg==null?null:(usg?`${f1(nv(v.eq))} × 3.78541 × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`:`${f1(nv(v.eq))} × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`)},
+    {t:'<b>Fuel on board after uplift</b>',d:'도착 FOB(ELB 왼쪽 Fuel On Board)에 급유 kg를 더한 값',fx:'Fuel On Board + 급유 kg',nx:o.after==null?null:`${f1(nv(v.efob))} + ${f1(o.eKg)} = <strong>${f1(o.after)} kg</strong>`},
+    {t:'<b>Fuel difference</b>',d:'계기 Total fuel과 계산 FOB의 차이. 이 값을 ELB에 입력',fx:'Total fuel − FOB after uplift',nx:o.ediff==null?null:`${f1(nv(v.etot))} − ${f1(o.after)} = <strong>${s1(o.ediff)} kg</strong>`},
+    {t:'<b>탱크 합 확인</b>',d:'LH + CTR + RH가 Total fuel과 같은지 (같아야 정상)',fx:'LH + CTR + RH',nx:o.tsum==null?null:`${sumTxt(['elh','ectr','erh'])} = <strong>${f1(o.tsum)} kg</strong>${o.tchk!=null?` (Total fuel과 차이 ${s1(o.tchk)||'0'} kg)`:''}`},
+  ];}
+  const T=A.tanks.map((_,i)=>i);return [
     {t:'<b>Total X</b> 급유 전 탱크 합계',d:'In Tank (X) 칸 합계',fx:'X 합',nx:tsum(0,T.map(i=>'pre_'+i),o.X)},
     {t:'<b>Total Y</b> 출발 탱크 합계',d:'Departure (Y) 칸 합계',fx:'Y 합',nx:tsum(0,T.map(i=>'dep_'+i),o.Y)},
     fuelStep(f,'<b>Actual Uplift Kgs</b>'),
@@ -519,7 +557,7 @@ function update(){
   $$('[data-bwtot]').forEach(el=>el.textContent=f1(f.vol));
   if(S.explain&&$('#exp')) $('#exp').innerHTML=explainHTML(id,f,o,dState);
   const tag=dState==='ok'?`<span class="tag ok">±${esc(S.limit)} 이내</span>`:dState==='over'?`<span class="tag over">±${esc(S.limit)} 초과</span>`:'<span class="tag none">입력 대기</span>';
-  const lab=id==='LOT'?'Remaining − ARR':id==='AI'?'Actual − Calc':id==='3S'?'IND − CALC FOB':'Discrepancy';
+  const lab=id==='LOT'?'Remaining − ARR':id==='AI'?(v.mode==='paper'?'Actual − Calc':'Fuel difference'):id==='3S'?'IND − CALC FOB':'Discrepancy';
   $('#bar').innerHTML=`<div class="bar-in"><div><span class="l">${A.code} ${lab}</span><span class="v">${o.disc==null?'–':s1(o.disc)+' kg'}</span></div>${tag}</div>`;
   save();
 }
@@ -555,6 +593,8 @@ document.addEventListener('click',e=>{
   if(b.dataset.addup){s.uplifts.push({v:'',r:''});if(s.uplifts.length===2&&!s.uplifts[0].v){}touched();render();const n=$('#f-up'+(s.uplifts.length-1));n&&n.focus();return;}
   if(b.dataset.del!==undefined){s.uplifts.splice(+b.dataset.del,1);touched();return render();}
   if(b.dataset.neg){const k=b.dataset.neg,c=v[k]||'';v[k]=c.startsWith('-')?c.slice(1):'-'+c;$('#f-'+k).value=v[k];touched();return update();}
+  if(b.dataset.aimode){v.mode=b.dataset.aimode;touched();return render();}
+  if(b.dataset.eu){v.eu=b.dataset.eu;touched();return render();}
   if(b.dataset.actype){v.acType=b.dataset.actype;touched();return render();}
   if(b.id==='xbtn'){S.explain=!S.explain;b.setAttribute('aria-expanded',S.explain);$('#exp').hidden=!S.explain;return update();}
   if(b.id==='clr'){

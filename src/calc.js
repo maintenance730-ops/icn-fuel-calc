@@ -28,12 +28,14 @@ const AIRLINES = {
     form: 'Aircraft Journey Log — Fuel Data',
     tanks: ['L/O', 'L/I', 'CTR', 'R/I', 'R/O', 'TRIM'],
     compute(v, f) {
-      const L = sumN(this.tanks.map((_, i) => v['pre_' + i])), E = sumN(this.tanks.map((_, i) => v['dep_' + i]));
+      // E(DEP FUEL)는 기장 기입값, F(PRE UPLIFT)는 실제 기입값 — 비워두면 탱크 합(Departure) / TTL L 자동
+      const L = sumN(this.tanks.map((_, i) => v['pre_' + i])), Esum = sumN(this.tanks.map((_, i) => v['dep_' + i]));
       const J = N(v.J), K = N(v.K) ?? 0;
       const JKL = (J == null || L == null) ? null : J - K - L;
-      const H = sub(E, L), GH = sub(f.kg, H);
-      const req = sub(N(v.plan), L);
-      return { L, E, JKL, F: L, G: f.kg, H, GH, GHp: pct(GH, H), req, reqL: toL(req, f.sg), disc: GH };
+      const E = N(v.Ein) ?? Esum, F = N(v.Fin) ?? L;
+      const H = sub(E, F), GH = sub(f.kg, H);
+      return { L, Esum, E, F, Eauto: N(v.Ein) == null, Fauto: N(v.Fin) == null, EvsSum: (N(v.Ein) != null && Esum != null) ? E - Esum : null,
+        JKL, G: f.kg, H, GH, GHp: pct(GH, H), disc: GH };
     } },
   LOT: { code: 'LO', name: 'LOT Polish', types: ['B787'], units: ['L'],
     form: 'Aircraft Technical Report — Fuel Record',
@@ -75,6 +77,17 @@ const AIRLINES = {
     form: 'Tech Log — Fuel Distribution / Fuel Uplift Data',
     tanks: ['LH', 'CWT/CTR', 'AUX/ACT FWD', 'ACT AFT1', 'ACT AFT2', 'RH'],
     compute(v, f) {
+      if (v.mode !== 'paper') {
+        // ELB 전자로그: 영수증 Total loaded(L/USG) × SG = 급유 kg, FOB after uplift = 도착 FOB + 급유 kg, Fuel difference = Total fuel − FOB after uplift
+        const q = N(v.eq), sg = N(v.esg);
+        const eL = q == null ? null : q * (v.eu === 'USG' ? USG_L : 1);
+        const eKg = (eL == null || !sg) ? null : eL * sg;
+        const fob = N(v.efob), tot = N(v.etot);
+        const after = (fob == null || eKg == null) ? null : fob + eKg;
+        const ediff = sub(tot, after);
+        const tsum = sumN(['elh', 'ectr', 'erh'].map(k => v[k]));
+        return { eL, eLh: v.eu === 'USG' ? eL : null, eKg, after, ediff, tsum, tchk: sub(tot, tsum), disc: ediff };
+      }
       const X = sumN(this.tanks.map((_, i) => v['pre_' + i])), Y = sumN(this.tanks.map((_, i) => v['dep_' + i]));
       const calc = sub(Y, X), dkg = sub(f.kg, calc);
       return { X, Y, gnd: sub(N(v.arr), X), planL: toL(N(v.plan), f.sg), upL: f.L, act: f.kg, calc, dkg, dp: pct(dkg, f.kg), disc: dkg };
