@@ -190,16 +190,25 @@ table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
 .add{align-self:flex-start;border:1.5px dashed var(--line);background:transparent;border-radius:7px;padding:5px 11px;font-size:13px;color:var(--pen);font-weight:500}
 
 /* explain */
+.fm td,.f-ELB .er,.f-ELB .er2>div{position:relative}
+.nbw{position:absolute;top:2px;left:2px;display:flex;gap:2px;z-index:3;pointer-events:none}
+.nb{min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#e8590c;color:#fff;font:700 11px/18px var(--f-num);text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.nbc{outline:1.5px dashed #e8590c;outline-offset:-2px}
+@keyframes flash{0%,100%{box-shadow:inset 0 0 0 0 transparent}30%{box-shadow:inset 0 0 0 3px #e8590c}}
+.flash{animation:flash 1.2s ease 2}
+@media (prefers-reduced-motion: reduce){.flash{animation:none;outline:3px solid #e8590c}}
 .xbtn{width:100%;display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--line);background:var(--card);border-radius:9px;padding:11px 14px;font-size:14px;font-weight:600;color:var(--ink)}
 .xbtn .ar{font-size:12px;color:var(--muted);transition:transform .2s}
 .xbtn[aria-expanded="true"] .ar{transform:rotate(180deg)}
 .exp{background:var(--card);border:1px solid var(--line);border-radius:9px;margin-top:-4px}
-.st{display:grid;grid-template-columns:24px minmax(0,1fr);gap:4px 10px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.st{display:grid;grid-template-columns:24px minmax(0,1fr);gap:3px 10px;padding:10px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;width:100%;text-align:left;color:inherit;font:inherit}
+button.st:active{background:color-mix(in srgb,#e8590c 10%,transparent)}
 .st:last-child{border-bottom:0}
-.st .no{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:12px;font-weight:700;font-family:var(--f-num)}
+.st .no{width:22px;height:22px;border-radius:50%;background:#e8590c;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;font-family:var(--f-num)}
 .st .tt{font-weight:600;font-size:14px;line-height:1.35}
 .st .tt b{font-family:var(--f-disp);letter-spacing:.03em;font-size:15px}
-.st .ds{grid-column:2;font-size:12.5px;color:var(--muted);line-height:1.5}
+.st .ds{font-size:12.5px;font-weight:400;color:var(--muted)}
+.st .tt,.st .fx,.st .nx,.st .wait{display:block}
 .st .fx{grid-column:2;font-family:var(--f-num);font-size:13px;color:var(--muted);overflow-wrap:anywhere}
 .st .nx{grid-column:2;font-family:var(--f-num);font-size:14.5px;color:var(--pen);overflow-wrap:anywhere}
 .st .nx strong{font-weight:700}
@@ -556,7 +565,7 @@ function airlineView(id){
   if(s.uplifts.length>1){
     h+=`<div class="aux"><h2>급유 합산 (여러 대) · 단위 ${UNAME[s.bu]}</h2><div class="ups">${s.uplifts.map((u,i)=>`<div class="up"><span class="n">#${i+1}</span><div class="ci"><input id="f-up${i}" data-up="${i}" data-f="v" inputmode="decimal" autocomplete="off" value="${esc(u.v)}" aria-label="급유 ${i+1}"></div><div class="ci"><input id="f-rc${i}" data-up="${i}" data-f="r" class="txt" autocomplete="off" value="${esc(u.r)}" placeholder="영수증" aria-label="영수증 ${i+1}"></div><button class="x" data-del="${i}" aria-label="급유 ${i+1} 삭제">×</button></div>`).join('')}<button class="add" data-addup="1">+ 급유차 추가</button></div></div>`;
   }
-  h+=`<button class="xbtn" id="xbtn" aria-expanded="${!!S.explain}" aria-controls="exp">계산 풀이 · 설명 <span class="ar">▼</span></button><div class="exp" id="exp"${S.explain?'':' hidden'}></div>`;
+  h+=`<button class="xbtn" id="xbtn" aria-expanded="${!!S.explain}" aria-controls="exp">계산 풀이 · 설명 <span style="font-size:12px;font-weight:400;color:var(--muted)">켜면 양식 칸에 번호 표시</span> <span class="ar">▼</span></button><div class="exp" id="exp"${S.explain?'':' hidden'}></div>`;
   return h;
 }
 
@@ -567,78 +576,90 @@ function fuelStep(f,label){
   const sg=f1v(s.sg), u=s.bu, multi=s.uplifts.filter(x=>nv(x.v)!=null).length>1;
   const conv=u==='USG'?' × 3.78541':u==='IG'?' × 4.54609':'';
   const unitName=u==='USG'?'USG':u==='IG'?'Imp gal':'L';
-  return {t:label, d:`급유차에 찍힌 양(${unitName})을 kg로 바꾼 값${multi?' · 여러 대 합계':''}${u!=='L'?` (1 ${unitName} = ${u==='USG'?'3.78541':'4.54609'} L)`:''}`,
+  return {t:label, d:`영수증 ${unitName} → kg${multi?' (여러 대 합계)':''}`,
     fx:`${unitName}${conv} × SG`, nx: f.kg==null?null:`${f1(f.vol)}${conv} × ${sg} = <strong>${f1(f.kg)} kg</strong>`};
 }
-const f1v=x=>{const n=nv(x);return n==null?'':String(n);};
+const f1v=x=>{const n=nv(x);return n==null?'':String(x).trim();};
 const sub2=(a,b,r,unit=' kg')=>a==null||b==null||r==null?null:`${f1(a)} − ${f1(b)} = <strong>${s1(r).replace(/^\+/, '')==f1(r)?f1(r):s1(r)}${unit}</strong>`;
 const tsum=(pre,keys,res,unit=' kg')=>{const t=sumTxt(keys);return t==null||res==null?null:`${t} = <strong>${f1(res)}${unit}</strong>`;};
+const AT=(o,at)=>Object.assign(o,{at});
 const EXPL={
   EK:(f,o)=>[
-    {t:'<b>B</b> 지상 사용 연료',d:'도착 후 급유 전까지 APU 등으로 쓴 연료',fx:'A − C',nx:sub2(nv(v.A),nv(v.C),o.B)},
-    {t:'<b>E</b> 필요 급유량',d:'출발 연료를 맞추려면 넣어야 하는 양 (계획)',fx:'D − C',nx:sub2(nv(v.D),nv(v.C),o.E)},
-    fuelStep(f,'<b>F</b> 실제 급유량'),
-    {t:'<b>H</b> 계기상 늘어난 양',d:'급유 후 계기 FOB − 급유 전 계기 FOB',fx:'G − C',nx:sub2(nv(v.G),nv(v.C),o.H)},
-    {t:'<b>J</b> Discrepancy',d:'급유차 기준(F)과 계기 기준(H)의 차이. 0에 가까울수록 정상',fx:'F − H',nx:o.J==null?null:`${f1(o.F)} − ${f1(o.H)} = <strong>${s1(o.J)} kg</strong>`},
-    {t:'<b>J/H × 100</b> 비율',d:'계기 기준 대비 몇 % 차이인지',fx:'J ÷ H × 100',nx:o.Jp==null?null:`${s1(o.J)} ÷ ${f1(o.H)} × 100 = <strong>${p2(o.Jp)} %</strong>`},
+    {at:['B'],t:'<b>B</b> 지상 사용',d:'도착 후 급유 전까지 쓴 연료',fx:'A − C',nx:sub2(nv(v.A),nv(v.C),o.B)},
+    {at:['E'],t:'<b>E</b> 필요 급유량',d:'계획상 넣어야 할 양',fx:'D − C',nx:sub2(nv(v.D),nv(v.C),o.E)},
+    AT(fuelStep(f,'<b>F</b> 실제 급유량'),['F','bw']),
+    {at:['H'],t:'<b>H</b> 계기상 늘어난 양',d:'급유 후 FOB − 급유 전 FOB',fx:'G − C',nx:sub2(nv(v.G),nv(v.C),o.H)},
+    {at:['J'],t:'<b>J</b> Discrepancy',d:'급유차(F) vs 계기(H) 차이',fx:'F − H',nx:o.J==null?null:`${f1(o.F)} − ${f1(o.H)} = <strong>${s1(o.J)} kg</strong>`},
+    {at:['Jp'],t:'<b>J/H × 100</b>',d:'차이 비율',fx:'J ÷ H × 100',nx:o.Jp==null?null:`${s1(o.J)} ÷ ${f1(o.H)} × 100 = <strong>${p2(o.Jp)} %</strong>`},
   ],
   UL:(f,o)=>{const T=A.tanks.map((_,i)=>i);return [
-    {t:'<b>L</b> 급유 전 탱크 합계',d:'탱크별 Pre Uplift Fuel을 모두 더한 값',fx:'L/O + L/I + CTR + R/I + R/O + TRIM',nx:tsum(0,T.map(i=>'pre_'+i),o.L)},
-    {t:'<b>J − K − L</b> 도착 체크',d:'도착 FOB에서 지상 사용량과 급유 전 합계를 뺀 값. 0이면 탱크 값이 맞음',fx:'J − K − L',nx:o.JKL==null?null:`${f1(nv(v.J))} − ${f1(nv(v.K)??0)} − ${f1(o.L)} = <strong>${s1(o.JKL)||'0'} kg</strong>`},
-    {t:'<b>Departure 탱크 합</b>',d:'탱크별 Departure Fuel 합계 (TTL 줄)',fx:'탱크 Departure 합',nx:tsum(0,T.map(i=>'dep_'+i),o.Esum)},
-    {t:'<b>E</b> DEP FUEL',d:o.Eauto?'기장 기입값이 비어 있어서 탱크 합을 그대로 사용':'기장이 적은 값 사용 (탱크 합과 다를 수 있음)',fx:o.Eauto?'E = 탱크 합':'E = 기장 기입값',nx:o.E==null?null:`<strong>${f1(o.E)} kg</strong>${o.EvsSum?` (탱크 합과 차이 ${s1(o.EvsSum)} kg)`:''}`},
-    {t:'<b>F</b> PRE UPLIFT',d:o.Fauto?'비어 있어서 TTL L(급유 전 탱크 합)을 사용':'직접 적은 값 사용',fx:o.Fauto?'F = TTL L':'F = 기입값',nx:o.F==null?null:`<strong>${f1(o.F)} kg</strong>`},
-    fuelStep(f,'<b>G</b> 실제 급유량 (Act uplift)'),
-    {t:'<b>H</b> 계산 급유량 (Cal uplift)',d:'탱크 기준으로 늘어난 양',fx:'E − F',nx:sub2(o.E,o.F,o.H)},
-    {t:'<b>G − H</b> Discrepancy',d:'급유차 기준(G)과 탱크 기준(H)의 차이. 양식에는 +/− 중 하나에 동그라미',fx:'G − H',nx:o.GH==null?null:`${f1(o.G)} − ${f1(o.H)} = <strong>${s1(o.GH)} kg</strong>`},
+    {at:['L'],t:'<b>TTL L</b> 급유 전 탱크 합',d:'Pre Uplift 칸 합계',fx:'Pre Uplift 합',nx:tsum(0,T.map(i=>'pre_'+i),o.L)},
+    {at:['JKL'],t:'<b>J − K − L</b> 도착 체크',d:'0이면 탱크 값이 맞음',fx:'J − K − L',nx:o.JKL==null?null:`${f1(nv(v.J))} − ${f1(nv(v.K)??0)} − ${f1(o.L)} = <strong>${s1(o.JKL)||'0'} kg</strong>`},
+    {at:['Esum'],t:'<b>TTL Departure</b> 출발 탱크 합',d:'Departure 칸 합계',fx:'Departure 합',nx:tsum(0,T.map(i=>'dep_'+i),o.Esum)},
+    {at:['Ein'],t:'<b>E</b> DEP FUEL',d:o.Eauto?'비어 있어서 탱크 합 사용':'기장 기입값 사용',fx:o.Eauto?'E = 탱크 합':'E = 기장 기입',nx:o.E==null?null:`<strong>${f1(o.E)} kg</strong>${o.EvsSum?` (탱크 합과 ${s1(o.EvsSum)})`:''}`},
+    {at:['Fin'],t:'<b>F</b> PRE UPLIFT',d:o.Fauto?'비어 있어서 TTL L 사용':'직접 적은 값 사용',fx:o.Fauto?'F = TTL L':'F = 기입값',nx:o.F==null?null:`<strong>${f1(o.F)} kg</strong>`},
+    AT(fuelStep(f,'<b>G</b> ACT UPLIFT'),['G','bw']),
+    {at:['H'],t:'<b>H</b> CAL UPLIFT',d:'탱크 기준 급유량',fx:'E − F',nx:sub2(o.E,o.F,o.H)},
+    {at:['GH'],t:'<b>G − H</b> Discrepancy',d:'+/− 중 하나에 동그라미',fx:'G − H',nx:o.GH==null?null:`${f1(o.G)} − ${f1(o.H)} = <strong>${s1(o.GH)} kg</strong>`},
   ];},
   LOT:(f,o)=>{const st=[
-    {t:'<b>Depart 1</b> 급유 후 탱크 합계',d:'After Refuel 줄의 Left + Center + Right',fx:'Left + Center + Right',nx:tsum(0,['dep_0','dep_1','dep_2'],o.D1)},
-    {t:'<b>Uplift [Litres]</b>',d:'급유차 영수증의 리터',fx:'급유차 리터',nx:f.L==null?null:`<strong>${f1(f.L)} L</strong>`},
-    fuelStep(f,'<b>Uplift [Kg]</b>'),
-    {t:'<b>Remaining</b> 급유 전 있던 연료 (역산)',d:'급유 후 합계에서 넣은 양을 빼면 급유 전에 남아 있던 양이 나옴',fx:'Depart 1 − Uplift',nx:sub2(o.D1,o.up,o.rem)},
-    {t:'<b>Remaining − ARR</b> 확인',d:'역산한 Remaining이 도착 잔량(ARR)과 비슷해야 정상. 양식에 적는 칸은 아님',fx:'Remaining − ARR',nx:o.diff==null?null:`${f1(o.rem)} − ${f1(nv(v.arr))} = <strong>${s1(o.diff)} kg</strong>`}];
+    {at:['D1'],t:'<b>Depart 1</b>',d:'급유 후 탱크 합',fx:'Left + Center + Right',nx:tsum(0,['dep_0','dep_1','dep_2'],o.D1)},
+    {at:['bw'],t:'<b>Uplift [Litres]</b>',d:'영수증 리터 그대로',fx:'영수증 L',nx:f.L==null?null:`<strong>${f1(f.L)} L</strong>`},
+    AT(fuelStep(f,'<b>Uplift [Kg]</b>'),['up']),
+    {at:['rem'],t:'<b>Remaining</b>',d:'급유 전 있던 연료 (역산)',fx:'Depart 1 − Uplift',nx:sub2(o.D1,o.up,o.rem)},
+    {at:['diff'],t:'<b>ARR 대비</b> 확인',d:'ARR와 비슷하면 정상 (양식엔 안 적음)',fx:'Remaining − ARR',nx:o.diff==null?null:`${f1(o.rem)} − ${f1(nv(v.arr))} = <strong>${s1(o.diff)} kg</strong>`}];
     if(o.D2!=null) st.push(
-    {t:'<b>Depart 2</b> 조정 후 탱크 합계',d:'Fuel Adjust 줄의 Left + Center + Right',fx:'Left + Center + Right (조정 후)',nx:tsum(0,['adj_0','adj_1','adj_2'],o.D2)},
-    {t:'<b>Adjustment</b>',d:'조정으로 바뀐 양 (kg, 리터)',fx:'Depart 2 − Depart 1 · 리터 = kg ÷ SG',nx:o.adj==null?null:`${f1(o.D2)} − ${f1(o.D1)} = <strong>${s1(o.adj)} kg</strong> · ${s1(o.adj)} ÷ ${f1v(s.sg)} = <strong>${s1(o.adjL)} L</strong>`});
+    {at:['D2'],t:'<b>Depart 2</b>',d:'조정 후 탱크 합',fx:'Left + Center + Right (조정)',nx:tsum(0,['adj_0','adj_1','adj_2'],o.D2)},
+    {at:['adj','adjL'],t:'<b>Adjustment</b>',d:'조정된 양 (kg · 리터)',fx:'Depart 2 − Depart 1 · kg ÷ SG',nx:o.adj==null?null:`${f1(o.D2)} − ${f1(o.D1)} = <strong>${s1(o.adj)} kg</strong> · ÷ ${f1v(s.sg)} = <strong>${s1(o.adjL)} L</strong>`});
     return st;},
-  KC:(f,o)=>{const T=[0,1,2];const kgTxt=(x)=>x==null?'':`${f1(x)} kg`;
+  KC:(f,o)=>{const T=[0,1,2];
     const colTxt=p=>{const xs=T.map(i=>nv(v[p+i])).filter(x=>x!=null);return xs.length?xs.map(x=>String(x)).join(' + '):null;};
-    const unitNote=t=>t?' t':' kg';
+    const un=t=>t?' t':' kg';
     const st=[
-    {t:'<b>Pre-Fuel</b> 합계',d:'급유 전 탱크 합계. 100 미만 숫자는 톤으로 보고 ×1000',fx:'Left + Right + Centre',nx:o.pre==null?null:`${colTxt('pre_')} = <strong>${o.preTxt}${unitNote(o.preT)}</strong>${o.preT?` (= ${f1(o.pre)} kg)`:''}`},
-    {t:'<b>Depart</b> 합계',d:'급유 후 탱크 합계',fx:'Left + Right + Centre',nx:o.dep==null?null:`${colTxt('dep_')} = <strong>${o.depTxt}${unitNote(o.depT)}</strong>${o.depT?` (= ${f1(o.dep)} kg)`:''}`}];
-    if(o.adjTot!=null) st.push({t:'<b>Adj. Depart</b>',d:'탱크별 Depart + Adjust',fx:'Depart + Adjust',nx:`<strong>${o.adjTxt}${unitNote(o.depT)}</strong> (= ${f1(o.adjTot)} kg)`});
-    const u=s.bu, vol=f.vol;
+    {at:['preTxt'],t:'<b>Pre-Fuel</b> Total',d:'100 미만은 톤(×1000)',fx:'Left + Right + Centre',nx:o.pre==null?null:`${colTxt('pre_')} = <strong>${o.preTxt}${un(o.preT)}</strong>${o.preT?` (${f1(o.pre)} kg)`:''}`},
+    {at:['depTxt'],t:'<b>Depart</b> Total',d:'급유 후 탱크 합',fx:'Left + Right + Centre',nx:o.dep==null?null:`${colTxt('dep_')} = <strong>${o.depTxt}${un(o.depT)}</strong>${o.depT?` (${f1(o.dep)} kg)`:''}`}];
+    if(o.adjTot!=null) st.push({at:['adjTxt'],t:'<b>Adj. Depart</b>',d:'Depart + Adjust',fx:'Depart + Adjust',nx:`<strong>${o.adjTxt}${un(o.depT)}</strong> (${f1(o.adjTot)} kg)`});
+    const u=s.bu;
     st.push(
-    {t:'<b>Lts</b> 급유 리터',d:u==='USG'?'영수증 Total Quantity(USG)를 리터로 (1 USG = 3.78541 L)':'영수증 리터 그대로',fx:u==='USG'?'USG × 3.78541':'Litres',nx:f.L==null?null:(u==='USG'?`${f1(vol)} × 3.78541 = <strong>${f1(f.L)} L</strong>`:`<strong>${f1(f.L)} L</strong>`)},
-    {t:'<b>kg</b> 급유 무게',d:'리터 × 영수증 S.G',fx:'Lts × SG',nx:f.kg==null?null:`${f1(f.L)} × ${f1v(s.sg)} = <strong>${f1(f.kg)} kg</strong>`},
-    {t:'<b>Calculated Uplift</b>',d:'탱크 기준으로 늘어난 양',fx:`Depart${o.adjTot!=null?'(Adj)':''} − Pre-Fuel`,nx:o.calc==null?null:`${f1(o.adjTot??o.dep)} − ${f1(o.pre)} = <strong>${f1(o.calc)} kg</strong>`},
-    {t:'<b>Discrepancy</b> (Calculated − Bowser)',d:'⚠ 다른 항공사와 순서가 반대: 탱크 기준 − 급유차 기준',fx:'Calculated − Bowser kg',nx:o.dsc==null?null:`${f1(o.calc)} − ${f1(o.bow)} = <strong>${s1(o.dsc)} kg</strong>`});
+    {at:['bowL'],t:'<b>Lts</b>',d:u==='USG'?'영수증 USG → 리터':'영수증 리터',fx:u==='USG'?'USG × 3.78541':'Litres',nx:f.L==null?null:(u==='USG'?`${f1(f.vol)} × 3.78541 = <strong>${f1(f.L)} L</strong>`:`<strong>${f1(f.L)} L</strong>`)},
+    {at:['bow'],t:'<b>kg</b> (Bowser)',d:'리터 × 밀도',fx:'Lts × Density',nx:f.kg==null?null:`${f1(f.L)} × ${f1v(s.sg)} = <strong>${f1(f.kg)} kg</strong>`},
+    {at:['calc'],t:'<b>Calculated Uplift</b>',d:'탱크 기준 급유량',fx:`Depart${o.adjTot!=null?'(Adj)':''} − Pre-Fuel`,nx:o.calc==null?null:`${f1(o.adjTot??o.dep)} − ${f1(o.pre)} = <strong>${f1(o.calc)} kg</strong>`},
+    {at:['dsc'],t:'<b>Discrepancy</b>',d:'⚠ 순서 반대: 계산 − 급유차',fx:'Calculated − Bowser',nx:o.dsc==null?null:`${f1(o.calc)} − ${f1(o.bow)} = <strong>${s1(o.dsc)} kg</strong>`});
     return st;},
   '3S':(f,o)=>{const u=s.bu;return [
-    {t:'<b>Fuel Uplift</b> 실제 급유량',d:u==='USG'?'영수증 SUPPL. QTY(USG)를 리터로 바꾼 뒤 DENSITY를 곱한 값 (1 USG = 3.78541 L)':'영수증 리터 × DENSITY',fx:u==='USG'?'SUPPL. QTY × 3.78541 × DENSITY':'SUPPL. QTY × DENSITY',nx:f.kg==null?null:(u==='USG'?`${f1(f.vol)} × 3.78541 × ${f1v(s.sg)} = <strong>${f1(f.kg)} kg</strong>`:`${f1(f.vol)} × ${f1v(s.sg)} = <strong>${f1(f.kg)} kg</strong>`)},
-    {t:'<b>Calc Fuel On Board</b>',d:'급유량에 급유 전 FOB를 더한 값. FOB PRIOR REFUELING은 직접 입력',fx:'Fuel Uplift + FOB Prior Refueling',nx:o.calc==null?null:`${f1(o.up)} + ${f1(nv(v.prior))} = <strong>${f1(o.calc)} kg</strong>`},
-    {t:'<b>IND − CALC FOB</b> 확인',d:'계기 FOB와 계산 FOB의 차이. 0에 가까울수록 정상. 양식에 적는 칸은 아님',fx:'Ind. Fuel On Board − Calc Fuel On Board',nx:o.diff==null?null:`${f1(nv(v.ind))} − ${f1(o.calc)} = <strong>${s1(o.diff)} kg</strong>`},
+    {at:['up'],t:'<b>Fuel Uplift</b>',d:u==='USG'?'USG → 리터 × 밀도':'리터 × 밀도',fx:u==='USG'?'QTY × 3.78541 × DENSITY':'QTY × DENSITY',nx:f.kg==null?null:(u==='USG'?`${f1(f.vol)} × 3.78541 × ${f1v(s.sg)} = <strong>${f1(f.kg)} kg</strong>`:`${f1(f.vol)} × ${f1v(s.sg)} = <strong>${f1(f.kg)} kg</strong>`)},
+    {at:['calc'],t:'<b>Calc Fuel On Board</b>',d:'급유량 + 급유 전 FOB',fx:'Uplift + FOB Prior',nx:o.calc==null?null:`${f1(o.up)} + ${f1(nv(v.prior))} = <strong>${f1(o.calc)} kg</strong>`},
+    {at:['diff'],t:'<b>IND − CALC</b> 확인',d:'0에 가까우면 정상 (양식엔 안 적음)',fx:'Ind. FOB − Calc FOB',nx:o.diff==null?null:`${f1(nv(v.ind))} − ${f1(o.calc)} = <strong>${s1(o.diff)} kg</strong>`},
   ];},
   AI:(f,o)=>{ if(v.mode!=='paper'){const usg=v.eu==='USG';return [
-    {t:'<b>급유 kg</b>',d:usg?'Volume(USG)을 리터로 바꾼 뒤 SG를 곱함':'Volume(Lt) × Specific gravity',fx:usg?'USG × 3.78541 × SG':'Lt × SG',nx:o.eKg==null?null:(usg?`${f1(nv(v.eq))} × 3.78541 × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`:`${f1(nv(v.eq))} × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`)},
-    {t:'<b>Total fuel</b> (ELB 자동)',d:'도착 FOB(ELB 왼쪽 Fuel On Board) + 급유 kg',fx:'Fuel On Board + 급유 kg',nx:o.etot==null?null:`${f1(nv(v.efob))} + ${f1(o.eKg)} = <strong>${f1(o.etot)} kg</strong>`},
-    {t:'<b>Fuel difference</b> (ELB 자동)',d:'계산 Total fuel − 계기 Fuel on board after uplift. %는 Total fuel 기준',fx:'Total fuel − FOB after uplift',nx:o.ediff==null?null:`${f1(o.etot)} − ${f1(nv(v.eaft))} = <strong>${s1(o.ediff)} kg</strong> (${p2(o.edp)} %)`},
-    {t:'<b>탱크 합 확인</b>',d:'LH + CTR + RH가 Fuel on board after uplift와 같아야 정상',fx:'LH + CTR + RH',nx:o.tsum==null?null:`${sumTxt(['elh','ectr','erh'])} = <strong>${f1(o.tsum)} kg</strong>${o.tchk!=null?` (FOB after uplift와 차이 ${s1(o.tchk)||'0'} kg)`:''}`},
+    {at:['eKg'],t:'<b>급유 kg</b>',d:'Volume × SG',fx:usg?'USG × 3.78541 × SG':'Lt × SG',nx:o.eKg==null?null:(usg?`${f1(nv(v.eq))} × 3.78541 × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`:`${f1(nv(v.eq))} × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`)},
+    {at:['etot'],t:'<b>Total fuel</b>',d:'도착 FOB + 급유 kg (ELB 자동)',fx:'Fuel On Board + 급유 kg',nx:o.etot==null?null:`${f1(nv(v.efob))} + ${f1(o.eKg)} = <strong>${f1(o.etot)} kg</strong>`},
+    {at:['ediff'],t:'<b>Fuel difference</b>',d:'% 는 Total fuel 기준 (ELB 자동)',fx:'Total fuel − FOB after uplift',nx:o.ediff==null?null:`${f1(o.etot)} − ${f1(nv(v.eaft))} = <strong>${s1(o.ediff)} kg</strong> (${p2(o.edp)} %)`},
+    {at:['tsum'],t:'<b>탱크 합</b> 확인',d:'FOB after uplift와 같아야 정상',fx:'LH + CTR + RH',nx:o.tsum==null?null:`${sumTxt(['elh','ectr','erh'])} = <strong>${f1(o.tsum)} kg</strong>${o.tchk?` (차이 ${s1(o.tchk)})`:''}`},
   ];}
   const T=A.tanks.map((_,i)=>i);return [
-    {t:'<b>Total X</b> 급유 전 탱크 합계',d:'In Tank (X) 칸 합계',fx:'X 합',nx:tsum(0,T.map(i=>'pre_'+i),o.X)},
-    {t:'<b>Total Y</b> 출발 탱크 합계',d:'Departure (Y) 칸 합계',fx:'Y 합',nx:tsum(0,T.map(i=>'dep_'+i),o.Y)},
-    fuelStep(f,'<b>Actual Uplift Kgs</b>'),
-    {t:'<b>Calculated (Y − X)</b>',d:'탱크 기준으로 늘어난 양',fx:'Y − X',nx:sub2(o.Y,o.X,o.calc)},
-    {t:'<b>Discrepancy %</b>',d:'급유차 기준 대비 차이 비율. kg 차이도 같이 표시',fx:'(Actual − Calc) ÷ Actual × 100',nx:o.dp==null?null:`(${f1(o.act)} − ${f1(o.calc)}) ÷ ${f1(o.act)} × 100 = <strong>${p2(o.dp)} %</strong> (${s1(o.dkg)} kg)`},
+    {at:['X'],t:'<b>Total X</b>',d:'급유 전 탱크 합',fx:'In Tank 합',nx:tsum(0,T.map(i=>'pre_'+i),o.X)},
+    {at:['Y'],t:'<b>Total Y</b>',d:'출발 탱크 합',fx:'Departure 합',nx:tsum(0,T.map(i=>'dep_'+i),o.Y)},
+    AT(fuelStep(f,'<b>Actual Uplift Kgs</b>'),['act','bw']),
+    {at:['calc'],t:'<b>Calculated (Y − X)</b>',d:'탱크 기준 급유량',fx:'Y − X',nx:sub2(o.Y,o.X,o.calc)},
+    {at:['dp'],t:'<b>Discrepancy %</b>',d:'급유차 기준 차이 비율',fx:'(Actual − Calc) ÷ Actual × 100',nx:o.dp==null?null:`(${f1(o.act)} − ${f1(o.calc)}) ÷ ${f1(o.act)} × 100 = <strong>${p2(o.dp)} %</strong> (${s1(o.dkg)} kg)`},
   ];},
 };
+/* 풀이 번호를 양식 칸에 표시 */
+function findCell(k){
+  const el=k==='bw'?(document.getElementById('f-up0')||document.querySelector('[data-bwtot]')):
+    (document.querySelector(`[data-o="${k}"]`)||document.querySelector(`[data-pm="${k}"]`)||document.querySelector(`[data-h="${k}"]`)||document.getElementById('f-'+k));
+  return el?el.closest('td,.er,.er2>div'):null;
+}
+function placeBadges(steps){
+  $$('.nbw').forEach(x=>x.remove());$$('.nbc').forEach(x=>x.classList.remove('nbc'));
+  if(!S.explain||!steps) return;
+  steps.forEach((x,i)=>{(x.at||[]).forEach(k=>{const c=findCell(k);if(!c)return;c.classList.add('nbc');let w=c.querySelector(':scope>.nbw');if(!w){w=document.createElement('span');w.className='nbw';c.prepend(w);}if(!w.querySelector(`[data-n="${i+1}"]`)){const b=document.createElement('span');b.className='nb';b.dataset.n=i+1;b.textContent=i+1;w.appendChild(b);}});});
+}
 function explainHTML(id,f,o,dState){
-  const steps=EXPL[id](f,o);
-  let h=steps.map((x,i)=>`<div class="st"><span class="no">${i+1}</span><div class="tt">${x.t}</div><div class="ds">${x.d}</div><div class="fx">${x.fx}</div>${x.nx?`<div class="nx">= ${x.nx}</div>`:'<div class="wait">값을 입력하면 계산돼요</div>'}</div>`).join('');
-  if(o.disc!=null){const ok=dState==='ok';h+=`<div class="st vd ${dState}"><span class="no">✓</span><div class="tt">판정: ${s1(o.disc)} kg → ${ok?'±'+esc(S.limit)+' kg 이내, 정상':'±'+esc(S.limit)+' kg 초과, 재확인 필요'}</div><div class="ds">${ok?'':'탱크 값, SG, 급유량 입력을 다시 확인하세요.'}</div></div>`;}
+  const steps=EXPL[id](f,o); window.__steps=steps;
+  let h=steps.map((x,i)=>`<button class="st" data-step="${i}" type="button"><span class="no">${i+1}</span><span class="tt">${x.t}<span class="ds"> · ${x.d}</span></span><span class="fx">식: ${x.fx}</span>${x.nx?`<span class="nx">= ${x.nx}</span>`:'<span class="wait">값을 입력하면 계산돼요</span>'}</button>`).join('');
+  if(o.disc!=null){const ok=dState==='ok';h+=`<div class="st vd ${dState}"><span class="no">✓</span><span class="tt">판정: ${s1(o.disc)} kg → ${ok?'±'+esc(S.limit)+' kg 이내, 정상':'±'+esc(S.limit)+' kg 초과, 재확인 필요'}</span></div>`;}
   return h;
 }
 
@@ -688,6 +709,7 @@ function update(){
   });
   $$('[data-bwtot]').forEach(el=>el.textContent=f1(f.vol));
   if(S.explain&&$('#exp')) $('#exp').innerHTML=explainHTML(id,f,o,dState);
+  placeBadges(S.explain?window.__steps:null);
   const tag=dState==='ok'?`<span class="tag ok">±${esc(S.limit)} 이내</span>`:dState==='over'?`<span class="tag over">±${esc(S.limit)} 초과</span>`:'<span class="tag none">입력 대기</span>';
   const lab=id==='LOT'?'Remaining − ARR':id==='AI'?(v.mode==='paper'?'Actual − Calc':'Fuel difference'):id==='3S'?'IND − CALC FOB':'Discrepancy';
   $('#bar').innerHTML=`<div class="bar-in"><div><span class="l">${A.code} ${lab}</span><span class="v">${o.disc==null?'–':s1(o.disc)+' kg'}</span></div>${tag}</div>`;
@@ -728,6 +750,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.aimode){v.mode=b.dataset.aimode;touched();return render();}
   if(b.dataset.eu){v.eu=b.dataset.eu;touched();return render();}
   if(b.dataset.actype){v.acType=b.dataset.actype;touched();return render();}
+  if(b.dataset.step!==undefined){const x=(window.__steps||[])[+b.dataset.step];const c=x&&x.at&&findCell(x.at[0]);if(c){c.scrollIntoView({behavior:'smooth',block:'center'});c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');}return;}
   if(b.id==='xbtn'){S.explain=!S.explain;b.setAttribute('aria-expanded',S.explain);$('#exp').hidden=!S.explain;return update();}
   if(b.id==='clr'){
     if(!clrArm){clrArm=1;b.textContent='한 번 더';setTimeout(()=>{clrArm=0;if(document.body.contains(b))b.textContent='비우기';},2500);return;}
