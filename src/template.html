@@ -72,6 +72,7 @@ button{cursor:pointer}
 .btn.danger{color:var(--bad);border-color:var(--bad)}
 .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:7px;overflow:hidden}
 .seg button{border:0;background:var(--card);padding:4px 10px;font-size:12.5px;font-family:var(--f-num);color:var(--muted)}
+.lbseg button{min-width:58px;font-weight:600;letter-spacing:.06em}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 
 /* ===== paper form ===== */
@@ -375,7 +376,7 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb" style="font-size:14px;font-weight:700">
 AI:()=>v.mode==='paper'?FORMS.AIP():FORMS.AIE(),
 AIE:()=>{const RQ='<span class="rq">Required</span>';const row=(lab,cell,extra='')=>`<div class="er"><div class="el">${lab}</div><div class="ev">${cell}${extra}</div></div>`;
 return `<div class="form f-ELB">
-<div class="eh"><span class="ei">⛽</span><b>Fuel Record</b><span class="es">ELB · ${esc(v.acType||'B787')}</span></div>
+<div class="eh"><span class="ei">⛽</span><b>Fuel Record</b><span class="es">ELB</span></div>
 ${row('Fuel On Board<small>ELB 왼쪽 화면 값 (도착 FOB)</small>',`<div class="eu">${I('efob',{al:'ELB fuel on board',ph:' '})}<span>kg</span></div>`,RQ)}
 <div class="er2"><div><div class="el2">Receipt number</div>${I('erc',{txt:1,al:'Receipt number',ph:' '})}</div><div><div class="el2">Volume</div><div class="eu">${I('eq',{al:'Volume',ph:' '})}<span>${v.eu==='USG'?'USG':'Lt'}</span></div></div></div>
 ${row('Total loaded',`<div class="eu"><div class="ek big" style="flex:1">${O('eq')}</div><span class="lu"><button data-eu="L" aria-pressed="${v.eu!=='USG'}">Lt</button><button data-eu="USG" aria-pressed="${v.eu==='USG'}">USG</button></span></div>`,HINT('eLh','= ',' L'))}
@@ -417,10 +418,10 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 
 function airlineView(id){
   A=AIRLINES[id]; s=st(id); v=s.vals; if(id==='AI'&&!FEAT.elb) v.mode='paper'; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(id==='AI'&&v.evd===undefined) v.evd='ASIANA AIRPORT'; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
-  const type=v.acType||A.types[0];
+  const type=A.types.length>1?(v.acType||A.types[0]):A.types[0];
   let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.72em">${esc(type)}</span></h1>
     <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp" aria-pressed="${!!S.sample[id]}"${SAMPLES[id]?'':' disabled title="예시값 없음"'}>예시</button></div></div>
-    ${(A.types.length>1||(id==='AI'&&FEAT.elb))?`<div style="display:flex;gap:8px;flex-wrap:wrap">${id==='AI'&&FEAT.elb?`<div class="seg" role="group" aria-label="기록 방식"><button data-aimode="elog" aria-pressed="${v.mode!=='paper'}">ELB 전자로그</button><button data-aimode="paper" aria-pressed="${v.mode==='paper'}">종이 테크로그</button></div>`:''}${A.types.length>1?`<div class="seg" role="group" aria-label="기종">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}</div>`:''}`;
+    ${(A.types.length>1||(id==='AI'&&FEAT.elb))?`<div style="display:flex;gap:8px;flex-wrap:wrap">${id==='AI'&&FEAT.elb?`<div class="seg lbseg" role="group" aria-label="기록 방식 (ELB 전자 / PLB 종이)"><button data-aimode="elog" aria-pressed="${v.mode!=='paper'}" title="Electronic Log Book">ELB</button><button data-aimode="paper" aria-pressed="${v.mode==='paper'}" title="Physical Log Book">PLB</button></div>`:''}${A.types.length>1?`<div class="seg" role="group" aria-label="기종">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}</div>`:''}`;
   h+=FORMS[id]();
   if(s.uplifts.length>1){
     h+=`<div class="aux"><h2>급유 합산 (여러 대) · 단위 ${UNAME[s.bu]}</h2><div class="ups">${s.uplifts.map((u,i)=>`<div class="up"><span class="n">#${i+1}</span><div class="ci"><input id="f-up${i}" data-up="${i}" data-f="v" inputmode="decimal" autocomplete="off" value="${esc(u.v)}" aria-label="급유 ${i+1}"></div><div class="ci"><input id="f-rc${i}" data-up="${i}" data-f="r" class="txt" autocomplete="off" value="${esc(u.r)}" placeholder="영수증" aria-label="영수증 ${i+1}"></div><button class="x" data-del="${i}" aria-label="급유 ${i+1} 삭제">×</button></div>`).join('')}<button class="add" data-addup="1">+ 급유차 추가</button></div></div>`;

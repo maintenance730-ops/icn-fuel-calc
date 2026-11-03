@@ -73,7 +73,7 @@ const AIRLINES = {
       T.forEach(i => { o['adjDep_' + i] = hasAdj ? tx(adjDepK[i], depT) : null; });
       return o;
     } },
-  AI: { code: 'AI', name: 'Air India', types: ['B787', 'B777'], units: ['L'],
+  AI: { code: 'AI', name: 'Air India', types: ['B787/B777'], units: ['L'],
     form: 'Tech Log — Fuel Distribution / Fuel Uplift Data',
     tanks: ['LH', 'CWT/CTR', 'AUX/ACT FWD', 'ACT AFT1', 'ACT AFT2', 'RH'],
     compute(v, f) {
