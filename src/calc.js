@@ -78,15 +78,18 @@ const AIRLINES = {
     tanks: ['LH', 'CWT/CTR', 'AUX/ACT FWD', 'ACT AFT1', 'ACT AFT2', 'RH'],
     compute(v, f) {
       if (v.mode !== 'paper') {
-        // ELB 전자로그: 영수증 Total loaded(L/USG) × SG = 급유 kg, FOB after uplift = 도착 FOB + 급유 kg, Fuel difference = Total fuel − FOB after uplift
+        // ELB 전자로그 (11/3 실제 화면으로 확인):
+        //   Total fuel(자동) = 도착 FOB + Volume × SG
+        //   Fuel on board after uplift = 계기값 직접 입력
+        //   Fuel difference(자동) = Total fuel − FOB after uplift,  % = ÷ Total fuel
         const q = N(v.eq), sg = N(v.esg);
         const eL = q == null ? null : q * (v.eu === 'USG' ? USG_L : 1);
         const eKg = (eL == null || !sg) ? null : eL * sg;
-        const fob = N(v.efob), tot = N(v.etot);
-        const after = (fob == null || eKg == null) ? null : fob + eKg;
-        const ediff = sub(tot, after);
+        const fob = N(v.efob), aft = N(v.eaft);
+        const etot = (fob == null || eKg == null) ? null : fob + eKg;
+        const ediff = sub(etot, aft);
         const tsum = sumN(['elh', 'ectr', 'erh'].map(k => v[k]));
-        return { eL, eLh: v.eu === 'USG' ? eL : null, eKg, after, ediff, tsum, tchk: sub(tot, tsum), disc: ediff };
+        return { eL, eLh: v.eu === 'USG' ? eL : null, eq: q, eKg, etot, ediff, edp: pct(ediff, etot), tsum, tchk: sub(aft, tsum), disc: ediff };
       }
       const X = sumN(this.tanks.map((_, i) => v['pre_' + i])), Y = sumN(this.tanks.map((_, i) => v['dep_' + i]));
       const calc = sub(Y, X), dkg = sub(f.kg, calc);

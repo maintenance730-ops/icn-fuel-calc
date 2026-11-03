@@ -90,6 +90,7 @@ button{cursor:pointer}
 .f3c{vertical-align:top!important}.f3c .lb{font-size:11px;padding:4px 5px 2px;font-weight:700}.f3c .ci input{font-size:15px}.f3c .co{font-size:15px}.f-3S .pmb{min-width:22px;font-size:15px}.f-3S .circ{justify-content:flex-start;padding:0 4px 2px}
 .f-ELB{--tint:#f3f4f7;--lbl:transparent;--entry:#ffffff;--frame:#c9ced6;border-width:1px;border-radius:12px;padding:4px 0 8px;font-family:var(--f-body)}
 .f-ELB .eh{display:flex;align-items:center;gap:8px;padding:10px 14px 8px;border-bottom:1px solid var(--line)}.f-ELB .eh b{font-size:17px}.f-ELB .ei{font-size:18px}.f-ELB .es{margin-left:auto;font-size:11.5px;color:var(--muted);font-family:var(--f-num)}
+.f-ELB .er2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:10px;padding:7px 14px}.f-ELB .el2{font-size:13px;color:var(--muted);margin-bottom:4px}
 .f-ELB .eh2{padding:12px 14px 4px;font-weight:700;font-size:15px;border-top:1px solid var(--line);margin-top:6px}
 .f-ELB .er{display:grid;grid-template-columns:40% minmax(0,1fr);gap:10px;align-items:start;padding:7px 14px}
 .f-ELB .el{font-size:14px;color:var(--ink);padding-top:9px;line-height:1.25}.f-ELB .el small{display:block;font-size:10.5px;color:var(--memo-fg)}
@@ -314,15 +315,18 @@ const AIRLINES = {
     tanks: ['LH', 'CWT/CTR', 'AUX/ACT FWD', 'ACT AFT1', 'ACT AFT2', 'RH'],
     compute(v, f) {
       if (v.mode !== 'paper') {
-        // ELB 전자로그: 영수증 Total loaded(L/USG) × SG = 급유 kg, FOB after uplift = 도착 FOB + 급유 kg, Fuel difference = Total fuel − FOB after uplift
+        // ELB 전자로그 (11/3 실제 화면으로 확인):
+        //   Total fuel(자동) = 도착 FOB + Volume × SG
+        //   Fuel on board after uplift = 계기값 직접 입력
+        //   Fuel difference(자동) = Total fuel − FOB after uplift,  % = ÷ Total fuel
         const q = N(v.eq), sg = N(v.esg);
         const eL = q == null ? null : q * (v.eu === 'USG' ? USG_L : 1);
         const eKg = (eL == null || !sg) ? null : eL * sg;
-        const fob = N(v.efob), tot = N(v.etot);
-        const after = (fob == null || eKg == null) ? null : fob + eKg;
-        const ediff = sub(tot, after);
+        const fob = N(v.efob), aft = N(v.eaft);
+        const etot = (fob == null || eKg == null) ? null : fob + eKg;
+        const ediff = sub(etot, aft);
         const tsum = sumN(['elh', 'ectr', 'erh'].map(k => v[k]));
-        return { eL, eLh: v.eu === 'USG' ? eL : null, eKg, after, ediff, tsum, tchk: sub(tot, tsum), disc: ediff };
+        return { eL, eLh: v.eu === 'USG' ? eL : null, eq: q, eKg, etot, ediff, edp: pct(ediff, etot), tsum, tchk: sub(aft, tsum), disc: ediff };
       }
       const X = sumN(this.tanks.map((_, i) => v['pre_' + i])), Y = sumN(this.tanks.map((_, i) => v['dep_' + i]));
       const calc = sub(Y, X), dkg = sub(f.kg, calc);
@@ -347,13 +351,13 @@ function runAirline(id, st) {
 
 if (typeof module !== 'undefined') module.exports = { AIRLINES, fuelCalc, runAirline };
 
-// 양식 사진(2026-10) 값으로 만든 예시 데이터 (KC·LOT 10/31, AI·UL 11/1~2 실제 급유값)
+// 양식 사진(2026-10) 값으로 만든 예시 데이터 (KC·LOT 10/31, UL 11/2, AI 11/3 실제 급유값)
 const SAMPLES = {
   EK: { sg: '0.793', bu: 'L', uplifts: [{ v: '162228', r: '' }], vals: { A: '23100', C: '22700', D: '152800', G: '152800', frz: '-47', rcpt: '3-26669MO', sup: 'ASIANA AIRPORT' } },
   UL: { sg: '0.7925', bu: 'USG', uplifts: [{ v: '15832', r: '4467708' }], vals: { pre_1: '4480', pre_3: '4480', dep_0: '2890', dep_1: '24040', dep_2: '40', dep_3: '24140', dep_4: '2930', dep_5: '2390', Ein: '56400', Fin: '8900', rcpt: '4467708', grade: 'JET A-1' } },
   LOT: { sg: '0.790', bu: 'L', uplifts: [{ v: '91575', r: '3-26670225' }], vals: { arr: '8100', dep_0: '16700', dep_1: '47500', dep_2: '16700', gs_0: 'G', gs_1: 'G', gs_2: 'G', ft1: 'JET A-1' } },
   KC: { sg: '0.7895', bu: 'USG', uplifts: [{ v: '7000', r: '4467584' }], vals: { pre_0: '9.2', pre_1: '9.2', pre_2: '0.0', dep_0: '18.0', dep_1: '18.0', dep_2: '4.0', sup: 'KAS' } },
-  AI: { sg: '0.788', bu: 'L', uplifts: [{ v: '47352', r: '' }], vals: { acType: 'B787', mode: 'elog', erc: '3-26671143', eq: '51117', eu: 'L', esg: '0.7920', efob: '4300', evd: 'ASIANA AIRPORT', arr: '5500', pre_0: '2800', pre_5: '2700', dep_0: '16600', dep_1: '9800', dep_5: '16700', plan: '43000', sup: 'ASIANA' } },
+  AI: { sg: '0.788', bu: 'L', uplifts: [{ v: '47352', r: '' }], vals: { acType: 'B787', mode: 'elog', erc: '3-26672106', eq: '50939', eu: 'L', esg: '0.792', efob: '5200', eaft: '45500', elh: '16600', ectr: '12300', erh: '16600', evd: 'ASIANA AIRPORT', arr: '5500', pre_0: '2800', pre_5: '2700', dep_0: '16600', dep_1: '9800', dep_5: '16700', plan: '43000', sup: 'ASIANA' } },
 };
 if (typeof module !== 'undefined') module.exports = { SAMPLES };
 
@@ -367,7 +371,7 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 let S=load()||{};
 S.cur=S.cur||'EK'; S.data=S.data||{}; S.sample=S.sample||{}; if(S.limit==null) S.limit='1000';
 S.tools=S.tools||{cv:'',cu:'L',csg:'0.790',hh:'',mm:'',qt:''};
-const FEAT={elb:false}; // ELB 미리보기는 확인 후 켜기
+const FEAT={elb:true};
 const ORDER=['EK','UL','LOT','KC','AI','3S'];
 const DEF_SUP={EK:'ASIANA AIRPORT',KC:'KAS'};
 if(!S.mig1){ if(S.data.KC){S.data.KC.bu='USG'; delete S.data.KC.vals.depUnit;} S.mig1=true; }
@@ -503,12 +507,12 @@ AIE:()=>{const RQ='<span class="rq">Required</span>';const row=(lab,cell,extra='
 return `<div class="form f-ELB">
 <div class="eh"><span class="ei">⛽</span><b>Fuel Record</b><span class="es">ELB · ${esc(v.acType||'B787')}</span></div>
 ${row('Fuel On Board<small>ELB 왼쪽 화면 값 (도착 FOB)</small>',`<div class="eu">${I('efob',{al:'ELB fuel on board',ph:' '})}<span>kg</span></div>`,RQ)}
-${row('Receipt No.',I('erc',{txt:1,al:'Receipt no',ph:' '}),RQ)}
-${row('Total loaded',`<div class="eu">${I('eq',{al:'Total loaded',ph:' '})}<span class="lu"><button data-eu="L" aria-pressed="${v.eu!=='USG'}">Lt</button><button data-eu="USG" aria-pressed="${v.eu==='USG'}">USG</button></span></div>`,RQ+HINT('eLh','= ',' L'))}
-${row('Specific gravity',I('esg',{al:'Specific gravity',ph:' '}),RQ+`<div class="ek">${O('eKg')} <span>kg</span></div>`)}
-${row('Total fuel',`<div class="eu">${I('etot',{al:'Total fuel',ph:' '})}<span>kg</span></div>`,RQ+HINT('tsum','탱크 합 ',' kg'))}
-${row('Fuel on board<br>after uplift',`<div class="ek big">${O('after')} <span>kg</span></div>`)}
-${row('Fuel difference',`<div class="ek big">${O('ediff',{fmt:'s',disc:1})} <span>kg</span></div>`,'<div class="hint" style="text-align:left">▶ 이 값을 ELB에 입력</div>')}
+<div class="er2"><div><div class="el2">Receipt number</div>${I('erc',{txt:1,al:'Receipt number',ph:' '})}</div><div><div class="el2">Volume</div><div class="eu">${I('eq',{al:'Volume',ph:' '})}<span>${v.eu==='USG'?'USG':'Lt'}</span></div></div></div>
+${row('Total loaded',`<div class="eu"><div class="ek big" style="flex:1">${O('eq')}</div><span class="lu"><button data-eu="L" aria-pressed="${v.eu!=='USG'}">Lt</button><button data-eu="USG" aria-pressed="${v.eu==='USG'}">USG</button></span></div>`,HINT('eLh','= ',' L'))}
+${row('Specific gravity',I('esg',{al:'Specific gravity',ph:' '}),RQ+`<div class="ek">급유 ${O('eKg')} <span>kg</span></div>`)}
+${row('Total fuel',`<div class="ek big">${O('etot')} <span>kg</span></div>`,'<div class="hint" style="text-align:left">= 도착 FOB + 급유 kg (ELB 자동)</div>')}
+${row('Fuel on board<br>after uplift',`<div class="eu">${I('eaft',{al:'Fuel on board after uplift',ph:' '})}<span>kg</span></div>`,RQ+HINT('tsum','탱크 합 ',' kg'))}
+${row('Fuel difference',`<div class="ek big">${O('ediff',{fmt:'s',disc:1})} <span>kg</span></div>`,HINT('edp','(',' %)',{fmt:'p'}))}
 ${row('Vendor',I('evd',{txt:1,al:'Vendor',ph:'ASIANA AIRPORT'}),'')}
 <div class="eh2">Fuel Distribution</div>
 ${row('LH Tank',`<div class="eu">${I('elh',{al:'LH tank',ph:' '})}<span>kg</span></div>`,RQ)}
@@ -542,7 +546,7 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 };
 
 function airlineView(id){
-  A=AIRLINES[id]; s=st(id); v=s.vals; if(id==='AI'&&!FEAT.elb) v.mode='paper'; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
+  A=AIRLINES[id]; s=st(id); v=s.vals; if(id==='AI'&&!FEAT.elb) v.mode='paper'; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(id==='AI'&&v.evd===undefined) v.evd='ASIANA AIRPORT'; if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
   const type=v.acType||A.types[0];
   let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.72em">${esc(type)}</span></h1>
     <div class="acts"><button class="btn danger" id="clr">비우기</button><button class="btn" id="smp" aria-pressed="${!!S.sample[id]}"${SAMPLES[id]?'':' disabled title="예시값 없음"'}>예시</button></div></div>
@@ -617,10 +621,10 @@ const EXPL={
     {t:'<b>IND − CALC FOB</b> 확인',d:'계기 FOB와 계산 FOB의 차이. 0에 가까울수록 정상. 양식에 적는 칸은 아님',fx:'Ind. Fuel On Board − Calc Fuel On Board',nx:o.diff==null?null:`${f1(nv(v.ind))} − ${f1(o.calc)} = <strong>${s1(o.diff)} kg</strong>`},
   ];},
   AI:(f,o)=>{ if(v.mode!=='paper'){const usg=v.eu==='USG';return [
-    {t:'<b>급유 kg</b> (Specific gravity 아래 kg)',d:usg?'영수증 Total loaded(USG)를 리터로 바꾼 뒤 SG를 곱함':'영수증 리터 × 영수증 S.G',fx:usg?'USG × 3.78541 × SG':'Lt × SG',nx:o.eKg==null?null:(usg?`${f1(nv(v.eq))} × 3.78541 × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`:`${f1(nv(v.eq))} × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`)},
-    {t:'<b>Fuel on board after uplift</b>',d:'도착 FOB(ELB 왼쪽 Fuel On Board)에 급유 kg를 더한 값',fx:'Fuel On Board + 급유 kg',nx:o.after==null?null:`${f1(nv(v.efob))} + ${f1(o.eKg)} = <strong>${f1(o.after)} kg</strong>`},
-    {t:'<b>Fuel difference</b>',d:'계기 Total fuel과 계산 FOB의 차이. 이 값을 ELB에 입력',fx:'Total fuel − FOB after uplift',nx:o.ediff==null?null:`${f1(nv(v.etot))} − ${f1(o.after)} = <strong>${s1(o.ediff)} kg</strong>`},
-    {t:'<b>탱크 합 확인</b>',d:'LH + CTR + RH가 Total fuel과 같은지 (같아야 정상)',fx:'LH + CTR + RH',nx:o.tsum==null?null:`${sumTxt(['elh','ectr','erh'])} = <strong>${f1(o.tsum)} kg</strong>${o.tchk!=null?` (Total fuel과 차이 ${s1(o.tchk)||'0'} kg)`:''}`},
+    {t:'<b>급유 kg</b>',d:usg?'Volume(USG)을 리터로 바꾼 뒤 SG를 곱함':'Volume(Lt) × Specific gravity',fx:usg?'USG × 3.78541 × SG':'Lt × SG',nx:o.eKg==null?null:(usg?`${f1(nv(v.eq))} × 3.78541 × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`:`${f1(nv(v.eq))} × ${f1v(v.esg)} = <strong>${f1(o.eKg)} kg</strong>`)},
+    {t:'<b>Total fuel</b> (ELB 자동)',d:'도착 FOB(ELB 왼쪽 Fuel On Board) + 급유 kg',fx:'Fuel On Board + 급유 kg',nx:o.etot==null?null:`${f1(nv(v.efob))} + ${f1(o.eKg)} = <strong>${f1(o.etot)} kg</strong>`},
+    {t:'<b>Fuel difference</b> (ELB 자동)',d:'계산 Total fuel − 계기 Fuel on board after uplift. %는 Total fuel 기준',fx:'Total fuel − FOB after uplift',nx:o.ediff==null?null:`${f1(o.etot)} − ${f1(nv(v.eaft))} = <strong>${s1(o.ediff)} kg</strong> (${p2(o.edp)} %)`},
+    {t:'<b>탱크 합 확인</b>',d:'LH + CTR + RH가 Fuel on board after uplift와 같아야 정상',fx:'LH + CTR + RH',nx:o.tsum==null?null:`${sumTxt(['elh','ectr','erh'])} = <strong>${f1(o.tsum)} kg</strong>${o.tchk!=null?` (FOB after uplift와 차이 ${s1(o.tchk)||'0'} kg)`:''}`},
   ];}
   const T=A.tanks.map((_,i)=>i);return [
     {t:'<b>Total X</b> 급유 전 탱크 합계',d:'In Tank (X) 칸 합계',fx:'X 합',nx:tsum(0,T.map(i=>'pre_'+i),o.X)},
