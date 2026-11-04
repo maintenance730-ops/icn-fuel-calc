@@ -20,9 +20,11 @@ const AIRLINES = {
   EK: { code: 'EK', name: 'Emirates', types: ['B777/A380'], units: ['L', 'USG'],
     form: 'Aircraft Fuel and Fluids Servicing Record',
     compute(v, f) {
-      const A = N(v.A), C = N(v.C), D = N(v.D), G = N(v.G);
-      const B = sub(A, C), E = sub(D, C), F = f.kg, H = sub(G, C), J = sub(F, H);
-      return { B, E, reqL: toL(E, f.sg), F, H, J, Jp: pct(J, H), disc: J };
+      // B(지상 사용)를 입력 → C(급유 전 FOB) = A − B 자동  (예전 저장값 v.C는 B가 비어 있을 때만 사용)
+      const A = N(v.A), D = N(v.D), G = N(v.G), Bin = N(v.B);
+      const C = Bin != null ? sub(A, Bin) : N(v.C);
+      const B = Bin != null ? Bin : sub(A, C), E = sub(D, C), F = f.kg, H = sub(G, C), J = sub(F, H);
+      return { B, C, E, reqL: toL(E, f.sg), F, H, J, Jp: pct(J, H), disc: J };
     } },
   UL: { code: 'UL', name: 'SriLankan', types: ['A330'], units: ['L', 'USG', 'IG'],
     form: 'Aircraft Journey Log — Fuel Data',

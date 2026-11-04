@@ -288,8 +288,8 @@ EK:()=>`<div class="form f-EK uc">
 <tr><th class="ttl" colspan="4">Aircraft Fuel and Fluids Servicing Record</th></tr>
 <tr><th></th><th style="text-align:left">Fuel Requirements</th><th>Kilograms</th><th>Other Fuel Info</th></tr>
 <tr><td class="lt">A</td><td class="lb">Arrival FOB</td><td>${I('A',{al:'A Arrival FOB'})}</td><td class="lb" style="text-align:center">Fuel Frz Point</td></tr>
-<tr><td class="lt">B</td><td class="lb">Fuel used on ground <small>(A−C)</small></td><td>${O('B')}</td><td>${I('frz',{txt:1,ph:'-47℃',al:'Fuel freeze point'})}</td></tr>
-<tr><td class="lt">C</td><td class="lb">Indicated FOB pre-refuel</td><td>${I('C',{al:'C Indicated FOB pre-refuel'})}</td><td class="lb" style="text-align:center">Fuel SG</td></tr>
+<tr><td class="lt">B</td><td class="lb">Fuel used on ground <small>(A−C) · 입력</small></td><td>${I('B',{al:'B Fuel used on ground'})}</td><td>${I('frz',{txt:1,ph:'-47℃',al:'Fuel freeze point'})}</td></tr>
+<tr><td class="lt">C</td><td class="lb">Indicated FOB pre-refuel <small>= A − B</small></td><td>${O('C')}</td><td class="lb" style="text-align:center">Fuel SG</td></tr>
 <tr><td class="lt">D</td><td class="lb">Required departure fuel</td><td>${I('D',{al:'D Required departure fuel'})}</td><td>${SG()}</td></tr>
 <tr><td class="lt">E</td><td class="lb">Required uplift <small>(D−C)</small></td><td>${O('E')}</td><td>${UNITS(['Litres','USG'])}</td></tr>
 <tr><td class="lt">F</td><td class="lb">Actual uplift <small>supplier</small></td><td>${O('F')}</td><td>${BW()}</td></tr>
@@ -455,10 +455,10 @@ const tsum=(pre,keys,res,unit=' kg')=>{const t=sumTxt(keys);return t==null||res=
 const AT=(o,at)=>Object.assign(o,{at});
 const EXPL={
   EK:(f,o)=>[
-    {at:['B'],t:'<b>B</b> 지상 사용',d:'도착 후 급유 전까지 쓴 연료',fx:'A − C',nx:sub2(nv(v.A),nv(v.C),o.B)},
-    {at:['E'],t:'<b>E</b> 필요 급유량',d:'계획상 넣어야 할 양',fx:'D − C',nx:sub2(nv(v.D),nv(v.C),o.E)},
+    {at:['C'],t:'<b>C</b> 급유 전 FOB',d:'도착 FOB − 지상 사용(B, 직접 조절)',fx:'A − B',nx:o.C==null?null:`${f1(nv(v.A))} − ${f1(o.B)} = <strong>${f1(o.C)} kg</strong>`},
+    {at:['E'],t:'<b>E</b> 필요 급유량',d:'계획상 넣어야 할 양',fx:'D − C',nx:sub2(nv(v.D),o.C,o.E)},
     AT(fuelStep(f,'<b>F</b> 실제 급유량'),['F','bw']),
-    {at:['H'],t:'<b>H</b> 계기상 늘어난 양',d:'급유 후 FOB − 급유 전 FOB',fx:'G − C',nx:sub2(nv(v.G),nv(v.C),o.H)},
+    {at:['H'],t:'<b>H</b> 계기상 늘어난 양',d:'급유 후 FOB − 급유 전 FOB',fx:'G − C',nx:sub2(nv(v.G),o.C,o.H)},
     {at:['J'],t:'<b>J</b> Discrepancy',d:'급유차(F) vs 계기(H) 차이',fx:'F − H',nx:o.J==null?null:`${f1(o.F)} − ${f1(o.H)} = <strong>${s1(o.J)} kg</strong>`},
     {at:['Jp'],t:'<b>J/H × 100</b>',d:'차이 비율',fx:'J ÷ H × 100',nx:o.Jp==null?null:`${s1(o.J)} ÷ ${f1(o.H)} × 100 = <strong>${p2(o.Jp)} %</strong>`},
   ],
