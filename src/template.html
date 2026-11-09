@@ -132,6 +132,7 @@ table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
 .ci{display:flex;align-items:stretch;background:var(--entry,var(--in-bg));min-height:40px}
 .ci input{flex:1;min-width:0;width:100%;border:0;background:transparent;padding:8px 5px;font-family:var(--f-num);font-size:16px;font-weight:500;color:var(--pen);text-align:right;outline:none;font-variant-numeric:tabular-nums}
 .ci input.txt{font-family:var(--f-body);font-size:14px;text-align:left;text-transform:uppercase}
+.ci input.autoph::placeholder{color:var(--pen);opacity:.6;font-style:italic}
 .ci input::placeholder{color:var(--muted);opacity:.55;text-transform:none}
 .ci:focus-within{box-shadow:inset 0 0 0 2px var(--pen)}
 .ci .pre{align-self:center;padding-left:7px;font-family:var(--f-disp);font-weight:600;font-size:13px;color:var(--muted)}
@@ -318,8 +319,8 @@ ${A.tanks.map((t,i)=>`<tr><td class="lc">${L[i]}</td><td class="lb faint tn">${t
 <tr><td class="cap" colspan="4">Stick reading before / after refuelling — 사선(/) 처리</td></tr>
 </table>
 <table class="fm"><colgroup><col style="width:31%"><col style="width:12%"><col><col></colgroup>
-<tr><td class="shade" rowspan="5"><div class="cap">FLUID DATA</div></td><td class="lb" colspan="2">Dep fuel <span class="k">E</span><span class="mk">▶ 기장 기입 (FLT CREW write) · 비우면 탱크 합</span></td><td>${I('Ein',{al:'E Dep fuel (flight crew)'})}${HINT('Esum','탱크 합 ',' kg')}</td></tr>
-<tr><td class="lb" colspan="2">Pre uplift <span class="k">F</span><span class="mk">▶ 비우면 TTL L</span></td><td>${I('Fin',{al:'F Pre uplift'})}${HINT('L','TTL L ',' kg')}</td></tr>
+<tr><td class="shade" rowspan="5"><div class="cap">FLUID DATA</div></td><td class="lb" colspan="2">Dep fuel <span class="k">E</span><span class="mk">▶ 기장 기입 (FLT CREW write) · 비우면 탱크 합 자동</span></td><td>${I('Ein',{al:'E Dep fuel (flight crew)'})}${HINT('Esum','탱크 합 ',' kg')}</td></tr>
+<tr><td class="lb" colspan="2">Pre uplift <span class="k">F</span><span class="mk">▶ 비우면 TTL L 자동 · 다르면 직접 입력</span></td><td>${I('Fin',{al:'F Pre uplift'})}${HINT('L','TTL L ',' kg')}</td></tr>
 <tr><td class="lb" colspan="2">Act uplift <span class="k">G</span></td><td>${O('G')}</td></tr>
 <tr><td class="lb" colspan="2">Cal uplift <span class="k">H=E−F</span></td><td>${O('H')}</td></tr>
 <tr><td class="lb" colspan="2">Discrepancy <span class="k">G−H</span></td><td>${PM('GH')}</td></tr>
@@ -580,6 +581,7 @@ function update(){
   $$('[data-bwtot]').forEach(el=>el.textContent=f1(f.vol));
   if(S.explain&&$('#exp')) $('#exp').innerHTML=explainHTML(id,f,o,dState);
   placeBadges(S.explain?window.__steps:null);
+  for(const [k,ok] of [['Ein','Esum'],['Fin','L']]){const el=document.getElementById('f-'+k); if(el){el.placeholder=o[ok]==null?'':f1(o[ok]); el.classList.toggle('autoph',true);}}
   const tag=dState==='ok'?`<span class="tag ok">±${esc(S.limit)} 이내</span>`:dState==='over'?`<span class="tag over">±${esc(S.limit)} 초과</span>`:'<span class="tag none">입력 대기</span>';
   const lab=id==='LOT'?'Remaining − ARR':id==='AI'?(v.mode==='paper'?'Actual − Calc':'Fuel difference'):id==='3S'?'IND − CALC FOB':'Discrepancy';
   $('#bar').innerHTML=`<div class="bar-in"><div><span class="l">${A.code} ${lab}</span><span class="v">${o.disc==null?'–':s1(o.disc)+' kg'}</span></div>${tag}</div>`;
