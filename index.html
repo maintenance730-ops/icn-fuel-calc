@@ -261,7 +261,7 @@ function fuelCalc(uplifts, unit, sgIn) {
   const vals = (uplifts || []).map(u => N(u.v)).filter(x => x != null);
   if (!vals.length) return { sg, vol: null, L: null, USG: null, IG: null, kg: null };
   const vol = vals.reduce((a, b) => a + b, 0), L = vol * m;
-  return { sg, vol, L, USG: L / USG_L, IG: L / IG_L, kg: sg ? L * sg : null };
+  return { sg, vol, L, USG: L / USG_L, IG: L / IG_L, kg: sg ? Math.round(L * sg) : null };  // kg는 정수로 반올림 (11/9 사용자 요청)
 }
 const toL = (kg, sg) => (kg == null || !sg) ? null : kg / sg;
 
@@ -335,7 +335,7 @@ const AIRLINES = {
         //   Fuel difference(자동) = Total fuel − FOB after uplift,  % = ÷ Total fuel
         const q = N(v.eq), sg = N(v.esg);
         const eL = q == null ? null : q * (v.eu === 'USG' ? USG_L : 1);
-        const eKg = (eL == null || !sg) ? null : eL * sg;
+        const eKg = (eL == null || !sg) ? null : Math.round(eL * sg);
         const fob = N(v.efob), aft = N(v.eaft);
         const etot = (fob == null || eKg == null) ? null : fob + eKg;
         const ediff = sub(etot, aft);
@@ -393,8 +393,8 @@ const st=id=>{ if(!S.data[id]){S.data[id]={sg:'',bu:AIRLINES[id].units[0],uplift
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
-/* 숫자 표기: 콤마 없음, 소수 첫째 자리 (정수면 정수) */
-const f1=n=>{ if(n==null||!isFinite(n)) return ''; const r=Math.round(n*10)/10; const s=Number.isInteger(r)?String(r):r.toFixed(1); return s==='-0'?'0':s; };
+/* 숫자 표기: 콤마 없음, 항상 정수로 반올림 (11/9 변경) */
+const f1=n=>{ if(n==null||!isFinite(n)) return ''; const s=String(Math.round(n)); return s==='-0'?'0':s; };
 const s1=n=>{ if(n==null||!isFinite(n)) return ''; const t=f1(n); return (Math.round(n*10)/10>0?'+':'')+t; };
 const p2=n=>n==null||!isFinite(n)?'':(n>0?'+':'')+n.toFixed(2);
 const UNAME={L:'L',USG:'USG',IG:'IMP GAL'};

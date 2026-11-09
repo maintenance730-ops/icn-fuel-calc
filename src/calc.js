@@ -12,7 +12,7 @@ function fuelCalc(uplifts, unit, sgIn) {
   const vals = (uplifts || []).map(u => N(u.v)).filter(x => x != null);
   if (!vals.length) return { sg, vol: null, L: null, USG: null, IG: null, kg: null };
   const vol = vals.reduce((a, b) => a + b, 0), L = vol * m;
-  return { sg, vol, L, USG: L / USG_L, IG: L / IG_L, kg: sg ? L * sg : null };
+  return { sg, vol, L, USG: L / USG_L, IG: L / IG_L, kg: sg ? Math.round(L * sg) : null };  // kg는 정수로 반올림 (11/9 사용자 요청)
 }
 const toL = (kg, sg) => (kg == null || !sg) ? null : kg / sg;
 
@@ -86,7 +86,7 @@ const AIRLINES = {
         //   Fuel difference(자동) = Total fuel − FOB after uplift,  % = ÷ Total fuel
         const q = N(v.eq), sg = N(v.esg);
         const eL = q == null ? null : q * (v.eu === 'USG' ? USG_L : 1);
-        const eKg = (eL == null || !sg) ? null : eL * sg;
+        const eKg = (eL == null || !sg) ? null : Math.round(eL * sg);
         const fob = N(v.efob), aft = N(v.eaft);
         const etot = (fob == null || eKg == null) ? null : fob + eKg;
         const ediff = sub(etot, aft);
