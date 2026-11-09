@@ -137,7 +137,8 @@ table.fm{width:100%;border-collapse:collapse;table-layout:fixed}
 .ci{display:flex;align-items:stretch;background:var(--entry,var(--in-bg));min-height:40px}
 .ci input{flex:1;min-width:0;width:100%;border:0;background:transparent;padding:8px 5px;font-family:var(--f-num);font-size:16px;font-weight:500;color:var(--pen);text-align:right;outline:none;font-variant-numeric:tabular-nums}
 .ci input.txt{font-family:var(--f-body);font-size:14px;text-align:left;text-transform:uppercase}
-.ci input.autoph::placeholder{color:var(--pen);opacity:.6;font-style:italic}
+.ci input.autoph{padding-right:10px}
+.ci input.autoph::placeholder{color:var(--pen);opacity:.6;font-style:italic;padding-right:2px}
 .ci input::placeholder{color:var(--muted);opacity:.55;text-transform:none}
 .ci:focus-within{box-shadow:inset 0 0 0 2px var(--pen)}
 .ci .pre{align-self:center;padding-left:7px;font-family:var(--f-disp);font-weight:600;font-size:13px;color:var(--muted)}
