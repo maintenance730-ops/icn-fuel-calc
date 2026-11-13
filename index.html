@@ -64,6 +64,7 @@ button{cursor:pointer}
 .mel .mh b{font-family:var(--f-disp);font-size:17px;letter-spacing:.06em}
 .mel .base{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
 .mel .base input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:7px;padding:8px;font-family:var(--f-num);font-size:16px;background:var(--in-bg);color:var(--pen)}
+.mel .mz{font-family:var(--f-num);font-size:12px;color:var(--muted);letter-spacing:.04em}.mel .base{flex-wrap:wrap;row-gap:6px}.mel .base>span{flex:0 0 100%;font-size:12px;color:var(--muted);letter-spacing:.04em}.mel .base input.mtime{flex:0 0 70px;text-align:center;letter-spacing:.08em}.mel .base input.mtime.bad{border-color:#c62828;color:#c62828}
 .mel .c .left{display:block;font-style:normal;font-family:var(--f-num);font-size:12px;color:#1a7f37;margin-top:3px}.mel .c .left.x{color:#c62828;font-weight:700}.mel .v small.alt{opacity:.75}
 .mel .mr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
 .mel .mr:last-child{border-bottom:0}
@@ -770,28 +771,26 @@ function update(){
 /* ---------- Header: UTC clock · MEL due dates · Compass ---------- */
 const pad2=n=>String(n).padStart(2,'0');
 const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'],WD=['SUN','MON','TUE','WED','THU','FRI','SAT'];
-const LTN=(()=>{const o=-new Date().getTimezoneOffset();return o===540?'KST':'LT';})();
 const fmtD=(d,utc)=>utc?`${pad2(d.getUTCDate())} ${MON[d.getUTCMonth()]} ${d.getUTCFullYear()} (${WD[d.getUTCDay()]})`:`${pad2(d.getDate())} ${MON[d.getMonth()]} ${d.getFullYear()} (${WD[d.getDay()]})`;
-const fmtDT=(d,utc)=>utc?`${pad2(d.getUTCDate())} ${MON[d.getUTCMonth()]} ${pad2(d.getUTCHours())}${pad2(d.getUTCMinutes())}Z`:`${pad2(d.getDate())} ${MON[d.getMonth()]} ${pad2(d.getHours())}${pad2(d.getMinutes())} ${LTN}`;
-S.mel=S.mel||{base:'',utc:true};
+delete S.mel; // MEL 시작 시각은 저장 안 함 (열 때마다 현재 UTC)
 let sheetMode=null;
 function openSheet(mode){sheetMode=mode;$('#sheet').hidden=false;$('#shT').textContent=mode==='utc'?'UTC · MEL':'COMPASS';$('#shB').innerHTML=mode==='utc'?utcHTML():cmpHTML();if(mode==='utc')utcTick(true);else cmpStart(false);}
 function closeSheet(){if(sheetMode==='cmp')cmpStop();sheetMode=null;$('#sheet').hidden=true;$('#shB').innerHTML='';}
 function todayISO(utc){const d=new Date();return utc?`${d.getUTCFullYear()}-${pad2(d.getUTCMonth()+1)}-${pad2(d.getUTCDate())}`:`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
-function utcHTML(){const m=S.mel;return `<div class="uclk"><div class="t" id="u-t">--:--:--</div><div class="d" id="u-d"></div><div class="l" id="u-l"></div></div>
-<div class="mel"><div class="mh"><b>MEL DUE</b><div class="seg"><button data-melz="utc" aria-pressed="${m.utc}">UTC</button><button data-melz="lt" aria-pressed="${!m.utc}">LOCAL (${LTN})</button></div></div>
-<div class="base"><span>Start</span><input type="date" id="m-base" data-mel="base" value="${esc(m.base||todayISO(m.utc))}"><button class="btn" id="m-today">Today</button></div>
-${[['A',1],['B',3],['C',10],['D',120]].map(([c,n])=>`<div class="mr"><span class="c">CAT ${c}<small>+${n} day${n>1?'s':''}</small><em class="left" id="m-l${c}"></em></span><span class="v" id="m-${c}" data-n="${n}">–</span></div>`).join('')}</div>
-<div class="cmpmsg">Due = start date + days, expires 23:59 of the due date (${m.utc?'UTC':LTN}). Follow your company MEL rules.</div>`;}
-function melCalc(){const b=($('#m-base')||{}).value;if(!b)return;const [y,mo,d]=b.split('-').map(Number);const u=S.mel.utc,now=Date.now();
+function nowHHMM(){const d=new Date();return pad2(d.getUTCHours())+pad2(d.getUTCMinutes());}
+function utcHTML(){return `<div class="uclk"><div class="t" id="u-t">--:--:--</div><div class="d" id="u-d"></div></div>
+<div class="mel"><div class="mh"><b>MEL DUE</b><span class="mz">ALL TIMES UTC</span></div>
+<div class="base"><span>START (DATE · HHMM)</span><input type="date" id="m-base" data-mel="base" value="${todayISO(true)}"><input id="m-time" class="mtime" data-mel="time" inputmode="numeric" maxlength="4" placeholder="HHMM" autocomplete="off" value="${nowHHMM()}" aria-label="Start time UTC (HHMM)"><button class="btn" id="m-today">Now</button></div>
+${[['A',1],['B',3],['C',10],['D',120]].map(([c,n])=>`<div class="mr"><span class="c">CAT ${c}<small>+${n} day${n>1?'s':''}</small></span><span class="v" id="m-${c}" data-n="${n}">–</span></div>`).join('')}</div>
+<div class="cmpmsg">Due = start time + days × 24h (UTC). Follow your company MEL rules.</div>`;}
+function melCalc(){const b=($('#m-base')||{}).value;if(!b)return;const [y,mo,d]=b.split('-').map(Number);
+  const t=(($('#m-time')||{}).value||'').replace(/\D/g,'');let hh=0,mm=0;if(t.length>=3){hh=+t.slice(0,t.length-2);mm=+t.slice(-2);}else if(t.length)hh=+t;
+  const bad=hh>23||mm>59;$('#m-time').classList.toggle('bad',bad);if(bad){['A','B','C','D'].forEach(c=>$('#m-'+c).textContent='–');return;}
   ['A','B','C','D'].forEach(c=>{const el=$('#m-'+c);if(!el)return;const n=+el.dataset.n;
-    const ex=u?new Date(Date.UTC(y,mo-1,d+n,23,59)):new Date(y,mo-1,d+n,23,59);
-    const dd=u?{D:ex.getUTCDate(),M:ex.getUTCMonth(),Y:ex.getUTCFullYear(),W:ex.getUTCDay()}:{D:ex.getDate(),M:ex.getMonth(),Y:ex.getFullYear(),W:ex.getDay()};
-    el.innerHTML=`${pad2(dd.D)} ${MON[dd.M]} ${dd.Y}<small>${WD[dd.W]} · 2359${u?'Z':' '+LTN}</small><small class="alt">= ${fmtDT(ex,!u)}</small>`;
-    const ms=ex-now,lf=$('#m-l'+c);if(lf){if(ms<=0){lf.textContent='EXPIRED';lf.className='left x';}else{const h=Math.floor(ms/36e5);lf.textContent=`${Math.floor(h/24)}d ${h%24}h left`;lf.className='left';}}});}
-let melMin=-1;
+    const ex=new Date(Date.UTC(y,mo-1,d+n,hh,mm));
+    el.innerHTML=`${pad2(ex.getUTCDate())} ${MON[ex.getUTCMonth()]} ${ex.getUTCFullYear()}<small>${WD[ex.getUTCDay()]} · ${pad2(ex.getUTCHours())}:${pad2(ex.getUTCMinutes())}</small>`;});}
 function utcTick(first){const d=new Date();const hm=`${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;const h=$('#utct');if(h)h.textContent=hm;
-  if(sheetMode==='utc'){$('#u-t').textContent=`${hm}:${pad2(d.getUTCSeconds())} Z`;$('#u-d').textContent=fmtD(d,true);$('#u-l').textContent=`${LTN} ${pad2(d.getHours())}:${pad2(d.getMinutes())} · ${fmtD(d,false)}`;if(first||d.getMinutes()!==melMin){melMin=d.getMinutes();melCalc();}}}
+  if(sheetMode==='utc'){$('#u-t').textContent=`${hm}:${pad2(d.getUTCSeconds())}`;$('#u-d').textContent=fmtD(d,true);if(first)melCalc();}}
 setInterval(utcTick,1000);
 /* Compass: Android = deviceorientationabsolute, iPhone = webkitCompassHeading (needs permission) */
 S.cmp=S.cmp||{tru:false};
@@ -850,7 +849,7 @@ document.addEventListener('pointerdown',e=>{if(e.target.id==='sheet')closeSheet(
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetMode)closeSheet();});
 document.addEventListener('input',e=>{
   const el=e.target;
-  if(el.dataset.mel){S.mel.base=el.value;melCalc();save();return;}
+  if(el.dataset.mel){melCalc();return;}
   if(el.dataset.qc){S.qc[el.dataset.qc]=el.value.trim();return qcUpdate();}
   if(el.dataset.t){S.tools[el.dataset.t]=el.value;return update();}
   if(el.dataset.limit){S.limit=el.value.trim();return update();}
@@ -867,8 +866,7 @@ document.addEventListener('click',e=>{
   if(b.id==='utcb'){openSheet('utc');return;}
   if(b.id==='cmpb'){openSheet('cmp');return;}
   if(b.id==='shX'){closeSheet();return;}
-  if(b.dataset.melz){S.mel.utc=b.dataset.melz==='utc';S.mel.base='';$('#shB').innerHTML=utcHTML();utcTick(true);save();return;}
-  if(b.id==='m-today'){S.mel.base='';$('#m-base').value=todayISO(S.mel.utc);melCalc();save();return;}
+  if(b.id==='m-today'){$('#m-base').value=todayISO(true);$('#m-time').value=nowHHMM();melCalc();return;}
   if(b.dataset.cmpn){S.cmp.tru=b.dataset.cmpn==='true';$$('[data-cmpn]').forEach(x=>x.setAttribute('aria-pressed',x===b));cmpPaint();save();return;}
   if(b.id==='c-start'){cmpStart(true);return;}
   if(b.id==='qcb'){S.qc.open=!S.qc.open;b.setAttribute('aria-expanded',S.qc.open);$('#qcbody').hidden=!S.qc.open;return save();}
