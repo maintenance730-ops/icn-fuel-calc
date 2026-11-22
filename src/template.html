@@ -439,8 +439,7 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb" style="font-size:14px;font-weight:700">
 <tr><td class="cap" colspan="5">Enter tonnes (9.2) or kg (9200) — under 100 is read as tonnes</td></tr>
 </table>
 <table class="fm"><colgroup><col style="width:30%"><col style="width:30%"><col></colgroup>
-<tr><td colspan="3" class="memo">▶ Enter receipt <b>Total Quantity</b> at the top → Lts · kg auto (SK receipt is in USG)</td></tr>
-<tr><td class="lb memo" style="font-weight:700">Total Quantity</td><td>${BW()}</td><td>${UNITS(['USG','Litres'])}</td></tr>
+<tr><td colspan="3" class="memo">▶ Receipt <b>Total Quantity</b> goes in the RECEIPT row at the top (SK receipt is in USG)</td></tr>
 <tr><th colspan="2" style="font-weight:400">Bowser Uplift</th><th style="font-weight:400">Calculated Uplift<br>Depart − Pre-Fuel</th></tr>
 <tr><td><div class="cap">Lts</div>${O('bowL')}</td><td><div class="cap">kg</div>${O('bow')}</td><td><div class="cap">kg</div>${O('calc')}</td></tr>
 <tr><th colspan="2" style="font-size:14px;font-weight:400">Fuel Density</th><th>DISCREPANCY<br><span style="font-weight:400">(CALCULATED − BOWSER)</span></th></tr>
