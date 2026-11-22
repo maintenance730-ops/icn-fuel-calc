@@ -42,13 +42,23 @@ const AIRLINES = {
   LOT: { code: 'LO', name: 'LOT Polish', types: ['B787'], units: ['L'],
     form: 'Aircraft Technical Report — Fuel Record',
     tanks: ['Left', 'Center', 'Right'],
+    // Depart 1/2는 직접 입력 가능 (비우면 아래 탱크 합). 추가 급유: Adjustment [Litres] = 2번째 영수증 × S.G.2(없으면 S.G.1) → Depart 2
     compute(v, f) {
-      const D1 = sumN(this.tanks.map((_, i) => v['dep_' + i]));
-      const D2 = sumN(this.tanks.map((_, i) => v['adj_' + i]));
-      const adj = sub(D2, D1);
+      const T1 = sumN(this.tanks.map((_, i) => v['dep_' + i]));
+      const T2 = sumN(this.tanks.map((_, i) => v['adj_' + i]));
+      const D1in = N(v.D1in), D1 = D1in ?? T1;
+      const sg2 = N(v.sg2) || f.sg, aL = N(v.adjLin);
+      const aKg = (aL != null && sg2) ? Math.round(aL * sg2) : null;
+      const D2in = N(v.D2in), D2g = D2in ?? T2;
+      const D2c = (aKg != null && D1 != null) ? D1 + aKg : null;
+      const D2 = D2g ?? D2c, D2src = D2in != null ? 'in' : T2 != null ? 'tank' : D2c != null ? 'calc' : null;
+      const gAdj = sub(D2g, D1);
+      const adj = aKg ?? gAdj;
+      const adjLa = toL(gAdj, f.sg), adjL = aL ?? adjLa;
       const up = f.kg, rem = sub(D1, up), arr = N(v.arr), diff = sub(rem, arr);
       const req = sub(N(v.plan), arr);
-      return { D1, D2, adj, adjL: toL(adj, f.sg), up, upL: f.L, rem, diff, diffp: pct(diff, up), req, reqL: toL(req, f.sg), disc: diff };
+      return { T1, T2, D1, D1auto: D1in == null, D2, D2src, D2a: T2 ?? D2c, adj, adjL, adjLa: aL == null ? adjLa : null, adjFromL: aKg != null, sg2,
+        adjChk: aKg != null ? gAdj : null, up, upL: f.L, rem, diff, diffp: pct(diff, up), req, reqL: toL(req, f.sg), disc: diff };
     } },
   KC: { code: 'KC', name: 'Air Astana', types: ['B767'], units: ['USG', 'L'],
     form: 'Technical Report KC/ENG/001A — Fuel Record',
