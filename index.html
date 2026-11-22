@@ -635,15 +635,17 @@ ${A.tanks.map((t,i)=>`<tr><td class="lb">${t}</td><td>${I('pre_'+i,{al:t+' in ta
 };
 
 /* 맨 위 영수증 수량 한 줄 (AI ELB는 Volume에 연결) */
+const MAXUP={LOT:3}; // 급유차 최대 대수 (LOT 3대)
+const upFull=()=>!!MAXUP[S.cur]&&s.uplifts.length>=MAXUP[S.cur];
 const UPROW=(elb)=>{
   const inp=elb?`<div class="ci"><span class="pre">RECEIPT</span><input id="f-eq" data-k="eq" inputmode="decimal" autocomplete="off" value="${esc(v.eq??'')}" placeholder="QTY" aria-label="Receipt quantity"></div>`
     :s.uplifts.length>1?`<output class="co" data-bwtot2="1"></output>`
     :`<div class="ci"><span class="pre">RECEIPT</span><input id="f-up0" data-up="0" data-f="v" inputmode="decimal" autocomplete="off" value="${esc((s.uplifts[0]||{}).v)}" placeholder="QTY" aria-label="Receipt quantity"></div>`;
   const seg=elb?['L','USG'].map(u=>`<button data-eu="${u}" aria-pressed="${(v.eu==='USG'?'USG':'L')===u}">${u}</button>`).join('')
     :A.units.map(u=>`<button data-bu="${u}" aria-pressed="${s.bu===u}">${u}</button>`).join('');
-  return `<div class="upr"${elb?' style="grid-template-columns:minmax(0,1fr) auto"':''}>${inp}<div class="seg">${seg}</div>${elb?'':`<button class="btn upa" data-addup="1" aria-label="Add another truck">+</button>`}<div class="uk" id="upk"></div><div class="wxl" id="wxl"></div></div>`;};
+  return `<div class="upr"${elb?' style="grid-template-columns:minmax(0,1fr) auto"':''}>${inp}<div class="seg">${seg}</div>${elb?'':`<button class="btn upa" data-addup="1" aria-label="Add another truck"${upFull()?' disabled':''}>+</button>`}<div class="uk" id="upk"></div><div class="wxl" id="wxl"></div></div>`;};
 function airlineView(id){
-  A=AIRLINES[id]; s=st(id); v=s.vals; if(id==='AI'&&!FEAT.elb) v.mode='paper'; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(id==='AI'&&v.evd===undefined) v.evd='ASIANA AIRPORT'; if(id==='AI'&&v.esg===undefined){v.esg=defSG();v.esgA=true;} if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
+  A=AIRLINES[id]; s=st(id); v=s.vals; if(MAXUP[id]&&s.uplifts.length>MAXUP[id]) s.uplifts.length=MAXUP[id]; if(id==='AI'&&!FEAT.elb) v.mode='paper'; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(id==='AI'&&v.evd===undefined) v.evd='ASIANA AIRPORT'; if(id==='AI'&&v.esg===undefined){v.esg=defSG();v.esgA=true;} if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
   const type=A.types.length>1?(v.acType||A.types[0]):A.types[0];
   const elb=id==='AI'&&v.mode!=='paper';
   let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.72em">${esc(type)}</span></h1>
@@ -651,7 +653,7 @@ function airlineView(id){
     ${(A.types.length>1||(id==='AI'&&FEAT.elb))?`<div style="display:flex;gap:8px;flex-wrap:wrap">${id==='AI'&&FEAT.elb?`<div class="seg lbseg" role="group" aria-label="Log type (ELB electronic / PLB paper)"><button data-aimode="elog" aria-pressed="${v.mode!=='paper'}" title="Electronic Log Book">ELB</button><button data-aimode="paper" aria-pressed="${v.mode==='paper'}" title="Physical Log Book">PLB</button></div>`:''}${A.types.length>1?`<div class="seg" role="group" aria-label="Aircraft type">${A.types.map(t=>`<button data-actype="${t}" aria-pressed="${type===t}">${t}</button>`).join('')}</div>`:''}</div>`:''}`;
   h+=UPROW(elb);
   if(!elb&&s.uplifts.length>1){
-    h+=`<div class="aux"><h2>Multiple trucks · unit ${UNAME[s.bu]}</h2><div class="ups">${s.uplifts.map((u,i)=>`<div class="up"><span class="n">#${i+1}</span><div class="ci"><input id="f-up${i}" data-up="${i}" data-f="v" inputmode="decimal" autocomplete="off" value="${esc(u.v)}" aria-label="Uplift ${i+1}"></div><div class="ci"><input id="f-rc${i}" data-up="${i}" data-f="r" class="txt" autocomplete="off" value="${esc(u.r)}" placeholder="Receipt no" aria-label="Receipt ${i+1}"></div><button class="x" data-del="${i}" aria-label="Delete uplift ${i+1}">×</button></div>`).join('')}<button class="add" data-addup="1">+ Add truck</button></div></div>`;
+    h+=`<div class="aux"><h2>Multiple trucks · unit ${UNAME[s.bu]}</h2><div class="ups">${s.uplifts.map((u,i)=>`<div class="up"><span class="n">#${i+1}</span><div class="ci"><input id="f-up${i}" data-up="${i}" data-f="v" inputmode="decimal" autocomplete="off" value="${esc(u.v)}" aria-label="Uplift ${i+1}"></div><div class="ci"><input id="f-rc${i}" data-up="${i}" data-f="r" class="txt" autocomplete="off" value="${esc(u.r)}" placeholder="Receipt no" aria-label="Receipt ${i+1}"></div><button class="x" data-del="${i}" aria-label="Delete uplift ${i+1}">×</button></div>`).join('')}${upFull()?`<div class="hint" style="text-align:left">Max ${MAXUP[id]} trucks</div>`:`<button class="add" data-addup="1">+ Add truck</button>`}</div></div>`;
   }
   h+=FORMS[id]();
   h+=`<button class="xbtn" id="xbtn" aria-expanded="${!!S.explain}" aria-controls="exp">Calculation steps <span style="font-size:12px;font-weight:400;color:var(--muted)">shows numbers on the form</span> <span class="ar">▼</span></button><div class="exp" id="exp"${S.explain?'':' hidden'}></div>`;
@@ -945,7 +947,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.sgstep){const c=parseFloat(s.sg)||+defSG();let t=(Math.round((c+0.0005*+b.dataset.sgstep)*10000)/10000).toFixed(4);if(t.endsWith('0'))t=t.slice(0,-1);s.sg=t;s.sgA=false;$$('#f-sg').forEach(x=>x.value=x.dataset.sgd?sgDec():s.sg);touched();return update();}
   if(b.dataset.bu){s.bu=b.dataset.bu;touched();return render();}
   if(b.dataset.gs!==undefined){v['gs_'+b.dataset.gs]=b.dataset.gv;$$(`[data-gs="${b.dataset.gs}"]`).forEach(x=>x.setAttribute('aria-pressed',x===b));touched();return save();}
-  if(b.dataset.addup){s.uplifts.push({v:'',r:''});if(s.uplifts.length===2&&!s.uplifts[0].v){}touched();render();const n=$('#f-up'+(s.uplifts.length-1));n&&n.focus();return;}
+  if(b.dataset.addup){if(upFull()){toast('Max '+MAXUP[id]+' trucks');return;}s.uplifts.push({v:'',r:''});if(s.uplifts.length===2&&!s.uplifts[0].v){}touched();render();const n=$('#f-up'+(s.uplifts.length-1));n&&n.focus();return;}
   if(b.dataset.del!==undefined){s.uplifts.splice(+b.dataset.del,1);touched();return render();}
   if(b.dataset.neg){const k=b.dataset.neg,c=v[k]||'';v[k]=c.startsWith('-')?c.slice(1):'-'+c;$('#f-'+k).value=v[k];touched();return update();}
   if(b.dataset.aimode){v.mode=b.dataset.aimode;touched();return render();}
