@@ -259,6 +259,7 @@ button.st:active{background:color-mix(in srgb,#e8590c 10%,transparent)}
 .upr .seg button{padding:10px 11px;font-size:13.5px;font-weight:600}
 .upr .upa{min-width:40px;padding:8px 0;font-size:19px;line-height:1.2;color:var(--pen)}
 .upr .uk{grid-column:1/-1;font-family:var(--f-num);font-size:13px;color:var(--pen);text-align:right}.upr .uk:empty{display:none}
+.upr .wxl{grid-column:1/-1;font-size:11.5px;color:var(--muted);text-align:right;line-height:1.3}
 .bwo{cursor:pointer}
 .xl{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted)}
 /* quick calculator */
@@ -453,14 +454,19 @@ let S=load()||{};
 S.cur=S.cur||'EK'; S.data=S.data||{}; S.sample=S.sample||{}; if(S.limit==null) S.limit='1000';
 /* 계절별 SG 시작값: 12~2월 0.796 · 3~4월 0.794 · 5~9월 0.792 · 10~11월 0.794 */
 const seasonSG=()=>{const m=new Date().getMonth()+1;return (m===12||m<=2)?'0.796':(m>=5&&m<=9)?'0.792':'0.794';};
-S.tools=S.tools||{cv:'',cu:'L',csg:seasonSG(),hh:'',mm:'',qt:''};
-S.qc=S.qc||{v:'',u:'USG',sg:''}; if(!S.qc.sg) S.qc.sg=seasonSG();
-if(!S.mig2){ for(const k in S.data){ if(S.data[k]&&!S.data[k].sg) S.data[k].sg=seasonSG(); } S.mig2=true; }
+/* SG 시작값 = ICN 현재 기온 기준 (Open-Meteo, 인터넷 될 때). 0°C 0.796 · 12.5°C 0.794 · 25°C 0.792 직선, 0.0005 단위. 못 받으면 계절값 */
+const WX_URL='https://api.open-meteo.com/v1/forecast?latitude=37.4602&longitude=126.4407&current=temperature_2m';
+const wxOK=()=>!!(S.wx&&typeof S.wx.t==='number'&&Date.now()-S.wx.ts<90*60000);
+const tempSG=t=>{const x=Math.max(0.790,Math.min(0.798,0.796-0.00016*t));return (Math.round(x*2000)/2000).toFixed(4).replace(/0$/,'');};
+const defSG=()=>wxOK()?tempSG(S.wx.t):seasonSG();
+S.tools=S.tools||{cv:'',cu:'L',csg:defSG(),hh:'',mm:'',qt:''};
+S.qc=S.qc||{v:'',u:'USG',sg:''}; if(!S.qc.sg){S.qc.sg=defSG();S.qc.sgA=true;}
+if(!S.mig2){ for(const k in S.data){ if(S.data[k]&&!S.data[k].sg) S.data[k].sg=defSG(); } S.mig2=true; }
 const FEAT={elb:true};
 const ORDER=['EK','UL','LOT','KC','AI','3S'];
 const DEF_SUP={EK:'ASIANA AIRPORT',KC:'KAS'};
 if(!S.mig1){ if(S.data.KC){S.data.KC.bu='USG'; delete S.data.KC.vals.depUnit;} S.mig1=true; }
-const st=id=>{ if(!S.data[id]){S.data[id]={sg:seasonSG(),bu:AIRLINES[id].units[0],uplifts:[{v:'',r:''}],vals:{}};S.sample[id]=false;} return S.data[id]; };
+const st=id=>{ if(!S.data[id]){S.data[id]={sg:defSG(),sgA:true,bu:AIRLINES[id].units[0],uplifts:[{v:'',r:''}],vals:{}};S.sample[id]=false;} return S.data[id]; };
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
@@ -477,7 +483,7 @@ const O=(k,o={})=>`<output class="co${o.box?' bxo':''}" data-o="${k}" data-fmt="
 function boxes(t,n){const ch=[...String(t)];const d=ch.filter(c=>/\d/.test(c)).length;let h='<i></i>'.repeat(Math.max(n-d,0));for(const c of ch)h+=/\d/.test(c)?`<i>${c}</i>`:`<b>${c==='-'?'−':c}</b>`;return h;}
 const PM=(k,n)=>`<div class="sgn co${n?' bxo':''}" data-pm="${k}" data-disc="1"${n?` data-box="${n}"`:''}><span class="c"><i data-s="+">+</i><i data-s="-">−</i></span><span class="val">${n?boxes('',n):''}</span></div>`;
 const HINT=(k,pre,suf,o={})=>`<div class="hint" data-h="${k}" data-pre="${esc(pre)}" data-suf="${esc(suf)}"${o.conv?' data-conv="1"':''}${o.disc?' data-hdisc="1"':''}${o.fmt?` data-fmt="${o.fmt}"`:''}></div>`;
-const SG=()=>`<div class="ci"><button class="pmb l" data-sgstep="-1" aria-label="SG down 0.0005">−</button><input id="f-sg" data-sg="1" class="sgi" inputmode="decimal" autocomplete="off" value="${esc(s.sg)}" placeholder="${seasonSG()}" aria-label="SG"><button class="pmb" data-sgstep="1" aria-label="SG up 0.0005">+</button></div>`;
+const SG=()=>`<div class="ci"><button class="pmb l" data-sgstep="-1" aria-label="SG down 0.0005">−</button><input id="f-sg" data-sg="1" class="sgi" inputmode="decimal" autocomplete="off" value="${esc(s.sg)}" placeholder="${defSG()}" aria-label="SG"><button class="pmb" data-sgstep="1" aria-label="SG up 0.0005">+</button></div>`;
 const sgDec=()=>String(s.sg||'').replace(/^0?\./,'');
 const SGBOX=(n)=>`<div class="ci bx sgb" style="--n:${n}"><button class="pmb l" data-sgstep="-1" aria-label="SG down 0.0005">−</button><span class="pre" style="font-family:var(--f-num);font-size:var(--bxfs,16px);color:var(--pen);padding:0 2px 0 8px;margin-right:auto">Ø.</span><input id="f-sg" data-sgd="1" class="bxi" inputmode="numeric" autocomplete="off" value="${esc(sgDec())}" aria-label="SG decimals (e.g. 7895)"><button class="pmb" data-sgstep="1" aria-label="SG up 0.0005">+</button></div>`;
 const BW=()=>`<output class="co bwo" data-bwtot="1"></output>`; // 수량은 맨 위 RECEIPT 줄에서 입력
@@ -635,9 +641,9 @@ const UPROW=(elb)=>{
     :`<div class="ci"><span class="pre">RECEIPT</span><input id="f-up0" data-up="0" data-f="v" inputmode="decimal" autocomplete="off" value="${esc((s.uplifts[0]||{}).v)}" placeholder="QTY" aria-label="Receipt quantity"></div>`;
   const seg=elb?['L','USG'].map(u=>`<button data-eu="${u}" aria-pressed="${(v.eu==='USG'?'USG':'L')===u}">${u}</button>`).join('')
     :A.units.map(u=>`<button data-bu="${u}" aria-pressed="${s.bu===u}">${u}</button>`).join('');
-  return `<div class="upr"${elb?' style="grid-template-columns:minmax(0,1fr) auto"':''}>${inp}<div class="seg">${seg}</div>${elb?'':`<button class="btn upa" data-addup="1" aria-label="Add another truck">+</button>`}<div class="uk" id="upk"></div></div>`;};
+  return `<div class="upr"${elb?' style="grid-template-columns:minmax(0,1fr) auto"':''}>${inp}<div class="seg">${seg}</div>${elb?'':`<button class="btn upa" data-addup="1" aria-label="Add another truck">+</button>`}<div class="uk" id="upk"></div><div class="wxl" id="wxl"></div></div>`;};
 function airlineView(id){
-  A=AIRLINES[id]; s=st(id); v=s.vals; if(id==='AI'&&!FEAT.elb) v.mode='paper'; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(id==='AI'&&v.evd===undefined) v.evd='ASIANA AIRPORT'; if(id==='AI'&&v.esg===undefined) v.esg=seasonSG(); if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
+  A=AIRLINES[id]; s=st(id); v=s.vals; if(id==='AI'&&!FEAT.elb) v.mode='paper'; for(const k of ['ft1','grade','ft']) if(v[k]===undefined) v[k]='JET A-1'; if(v.sup===undefined&&DEF_SUP[id]) v.sup=DEF_SUP[id]; if(id==='AI'&&v.evd===undefined) v.evd='ASIANA AIRPORT'; if(id==='AI'&&v.esg===undefined){v.esg=defSG();v.esgA=true;} if(!s.bu||!A.units.includes(s.bu)) s.bu=A.units[0];
   const type=A.types.length>1?(v.acType||A.types[0]):A.types[0];
   const elb=id==='AI'&&v.mode!=='paper';
   let h=`<div class="head"><h1>${esc(A.name)} <span class="faint" style="font-size:.72em">${esc(type)}</span></h1>
@@ -796,6 +802,7 @@ function update(){
     if(el.dataset.hdisc){el.classList.toggle('ok',dState==='ok');el.classList.toggle('over',dState==='over');}
   });
   $$('[data-bwtot],[data-bwtot2]').forEach(el=>el.textContent=f1(f.vol));
+  {const w=$('#wxl'); if(w) w.textContent=wxOK()?`ICN ${S.wx.t.toFixed(1)}°C now → SG starts at ${tempSG(S.wx.t)}`:`No live temperature → seasonal SG ${seasonSG()}`;}
   {const uk=$('#upk'); if(uk){let L,kg,src; if(id==='AI'&&v.mode!=='paper'){L=o.eL;kg=o.eKg;src=v.eu==='USG'?'USG':'L';}else{L=f.L;kg=f.kg;src=s.bu;}
     uk.textContent=L==null?'':'= '+[src!=='L'?f1(L)+' L':null,src!=='USG'?f1(L/3.78541)+' USG':null,kg!=null?f1(kg)+' kg':null].filter(Boolean).join(' · ');}}
   if(S.explain&&$('#exp')) $('#exp').innerHTML=explainHTML(id,f,o,dState);
@@ -865,7 +872,7 @@ function qcCalc(){const q=S.qc,v=parseFloat(q.v),sg=parseFloat(q.sg);if(isNaN(v)
 function qcHTML(){const q=S.qc;
   return `<div class="qcb">
     <div class="qrow"><div class="ci"><input id="q-v" data-qc="v" inputmode="decimal" autocomplete="off" value="${esc(q.v)}" placeholder="Quantity" aria-label="Quantity"></div><div class="seg"><button data-qcu="L" aria-pressed="${q.u==='L'}">L</button><button data-qcu="USG" aria-pressed="${q.u==='USG'}">USG</button></div></div>
-    <div class="qsg"><span>SG</span><div class="ci"><button class="pmb l" data-qcsg="-1" aria-label="SG down 0.0005">−</button><input id="q-sg" data-qc="sg" class="sgi" inputmode="decimal" autocomplete="off" value="${esc(q.sg)}" placeholder="${seasonSG()}" aria-label="SG"><button class="pmb" data-qcsg="1" aria-label="SG up 0.0005">+</button></div></div>
+    <div class="qsg"><span>SG</span><div class="ci"><button class="pmb l" data-qcsg="-1" aria-label="SG down 0.0005">−</button><input id="q-sg" data-qc="sg" class="sgi" inputmode="decimal" autocomplete="off" value="${esc(q.sg)}" placeholder="${defSG()}" aria-label="SG"><button class="pmb" data-qcsg="1" aria-label="SG up 0.0005">+</button></div></div>
     <div class="qout"><div><div class="k">Litres</div><div class="v${q.u==='L'?' src':''}" id="q-L">–</div></div><div><div class="k">US gal</div><div class="v${q.u==='USG'?' src':''}" id="q-U">–</div></div><div><div class="k">kg</div><div class="v" id="q-K">–</div></div></div>
     <div class="cmpmsg">1 USG = 3.78541 L · kg = L × SG (rounded)</div>
   </div>`;}
@@ -874,10 +881,23 @@ function qcUpdate(){const r=qcCalc();const t=x=>x==null?'–':f1(x);
 /* ---------- 30분 미사용 시 입력값 초기화 (쓸 때마다 30분 다시 시작) ---------- */
 const IDLE_MS=30*60*1000;
 function idleReset(){ if(!S.last||Date.now()-S.last<IDLE_MS) return false;
-  S.data={};S.sample={};S.qc={v:'',u:S.qc.u,sg:seasonSG()};Object.assign(S.tools,{cv:'',hh:'',mm:'',qt:''});S.last=0;save();return true;}
+  S.data={};S.sample={};S.qc={v:'',u:S.qc.u,sg:defSG(),sgA:true};Object.assign(S.tools,{cv:'',hh:'',mm:'',qt:''});S.last=0;save();return true;}
 let lastSave=0;
 const used=()=>{idleTick();S.last=Date.now();if(S.last-lastSave>5000){lastSave=S.last;save();}};
 function idleTick(){ if(!idleReset()) return; if(sheetMode==='qc'){$('#shB').innerHTML=qcHTML();qcUpdate();} render(); toast('Cleared — not used for 30 min'); }
+/* ---------- ICN 현재 기온 → SG 시작값 (손대지 않은 SG 칸만 갱신) ---------- */
+function wxApply(){const d=defSG();
+  for(const k in S.data){const x=S.data[k];if(!x)continue;if(x.sgA)x.sg=d;if(x.vals&&x.vals.esgA)x.vals.esg=d;}
+  if(S.qc.sgA)S.qc.sg=d;save();
+  const ae=document.activeElement,typing=ae&&ae.tagName==='INPUT';
+  if(typing){const w=$('#wxl');if(w&&S.cur!=='TOOLS')update();return;}
+  if(sheetMode==='qc'){$('#shB').innerHTML=qcHTML();qcUpdate();}
+  render();}
+function wxFetch(){ if(S.wx&&Date.now()-S.wx.ts<15*60000) return; if(!window.fetch||navigator.onLine===false) return;
+  fetch(WX_URL,{cache:'no-store'}).then(r=>r.json()).then(j=>{const t=j&&j.current&&j.current.temperature_2m;if(typeof t!=='number')return;S.wx={t,ts:Date.now()};wxApply();}).catch(()=>{});}
+setInterval(wxFetch,5*60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)wxFetch();});
+window.addEventListener('online',wxFetch);
 setInterval(idleTick,20000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)idleTick();});
 ['pointerdown','keydown','input'].forEach(t=>document.addEventListener(t,used,true));
@@ -894,14 +914,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetMode)closeShee
 document.addEventListener('input',e=>{
   const el=e.target;
   if(el.dataset.mel){melCalc();return;}
-  if(el.dataset.qc){S.qc[el.dataset.qc]=el.value.trim();return qcUpdate();}
+  if(el.dataset.qc){S.qc[el.dataset.qc]=el.value.trim();if(el.dataset.qc==='sg')S.qc.sgA=false;return qcUpdate();}
   if(el.dataset.t){S.tools[el.dataset.t]=el.value;return update();}
   if(el.dataset.limit){S.limit=el.value.trim();return update();}
   if(S.cur==='TOOLS') return;
-  if(el.dataset.k){v[el.dataset.k]=el.value.trim();touched();}
+  if(el.dataset.k){v[el.dataset.k]=el.value.trim();if(el.dataset.k==='esg')v.esgA=false;touched();}
   else if(el.dataset.up){s.uplifts[+el.dataset.up][el.dataset.f]=el.value.trim();touched();}
-  else if(el.dataset.sg){s.sg=el.value.trim();touched();}
-  else if(el.dataset.sgd){const d=el.value.replace(/[^0-9]/g,'');if(d!==el.value)el.value=d;s.sg=d?'0.'+d:'';touched();}
+  else if(el.dataset.sg){s.sg=el.value.trim();s.sgA=false;touched();}
+  else if(el.dataset.sgd){const d=el.value.replace(/[^0-9]/g,'');if(d!==el.value)el.value=d;s.sg=d?'0.'+d:'';s.sgA=false;touched();}
   update();
 });
 let clrArm=0;
@@ -917,12 +937,12 @@ document.addEventListener('click',e=>{
   if(b.id==='qcb'){openSheet('qc');return;}
   if(b.dataset.qcu){S.qc.u=b.dataset.qcu;$('#shB').innerHTML=qcHTML();return qcUpdate();}
   if(b.dataset.xl){S.xl=b.dataset.xl;return update();}
-  if(b.dataset.qcsg){const c=parseFloat(S.qc.sg)||+seasonSG();let t=(Math.round((c+0.0005*+b.dataset.qcsg)*10000)/10000).toFixed(4);if(t.endsWith('0'))t=t.slice(0,-1);S.qc.sg=t;$('#q-sg').value=t;return qcUpdate();}
+  if(b.dataset.qcsg){const c=parseFloat(S.qc.sg)||+defSG();let t=(Math.round((c+0.0005*+b.dataset.qcsg)*10000)/10000).toFixed(4);if(t.endsWith('0'))t=t.slice(0,-1);S.qc.sg=t;S.qc.sgA=false;$('#q-sg').value=t;return qcUpdate();}
   if(b.dataset.go){S.cur=b.dataset.go;render();window.scrollTo({top:0});return;}
   if(b.dataset.tu){S.tools.cu=b.dataset.tu;$$('[data-tu]').forEach(x=>x.setAttribute('aria-pressed',x===b));return update();}
   if(S.cur==='TOOLS') return;
   const id=S.cur;
-  if(b.dataset.sgstep){const c=parseFloat(s.sg)||+seasonSG();let t=(Math.round((c+0.0005*+b.dataset.sgstep)*10000)/10000).toFixed(4);if(t.endsWith('0'))t=t.slice(0,-1);s.sg=t;$$('#f-sg').forEach(x=>x.value=x.dataset.sgd?sgDec():s.sg);touched();return update();}
+  if(b.dataset.sgstep){const c=parseFloat(s.sg)||+defSG();let t=(Math.round((c+0.0005*+b.dataset.sgstep)*10000)/10000).toFixed(4);if(t.endsWith('0'))t=t.slice(0,-1);s.sg=t;s.sgA=false;$$('#f-sg').forEach(x=>x.value=x.dataset.sgd?sgDec():s.sg);touched();return update();}
   if(b.dataset.bu){s.bu=b.dataset.bu;touched();return render();}
   if(b.dataset.gs!==undefined){v['gs_'+b.dataset.gs]=b.dataset.gv;$$(`[data-gs="${b.dataset.gs}"]`).forEach(x=>x.setAttribute('aria-pressed',x===b));touched();return save();}
   if(b.dataset.addup){s.uplifts.push({v:'',r:''});if(s.uplifts.length===2&&!s.uplifts[0].v){}touched();render();const n=$('#f-up'+(s.uplifts.length-1));n&&n.focus();return;}
@@ -935,12 +955,13 @@ document.addEventListener('click',e=>{
   if(b.id==='xbtn'){S.explain=!S.explain;b.setAttribute('aria-expanded',S.explain);$('#exp').hidden=!S.explain;return update();}
   if(b.id==='clr'){
     if(!clrArm){clrArm=1;b.textContent='Again?';setTimeout(()=>{clrArm=0;if(document.body.contains(b))b.textContent='Clear';},2500);return;}
-    clrArm=0;S.data[id]={sg:s.sg||seasonSG(),bu:s.bu,uplifts:[{v:'',r:''}],vals:{acType:v.acType,ft1:'JET A-1',grade:'JET A-1',ft:'JET A-1',sup:DEF_SUP[id]}};S.sample[id]=false;render();toast('Cleared (SG and unit kept)');return;}
+    clrArm=0;S.data[id]={sg:s.sg||defSG(),sgA:s.sgA,bu:s.bu,uplifts:[{v:'',r:''}],vals:{acType:v.acType,ft1:'JET A-1',grade:'JET A-1',ft:'JET A-1',sup:DEF_SUP[id]}};S.sample[id]=false;render();toast('Cleared (SG and unit kept)');return;}
   if(b.id==='smp'){if(!SAMPLES[id])return;S.data[id]=clone(SAMPLES[id]);S.sample[id]=true;render();toast('Example values loaded');return;}
 });
 const idle0=idleReset();
 render();
 if(idle0) toast('Cleared — not used for 30 min');
+wxFetch();
 })();
 </script>
 
