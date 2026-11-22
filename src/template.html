@@ -246,6 +246,7 @@ button.st:active{background:color-mix(in srgb,#e8590c 10%,transparent)}
 .st.vd.ok .tt{color:var(--ok)} .st.vd.over .tt{color:var(--bad)}
 @media (prefers-reduced-motion: reduce){.xbtn .ar{transition:none}}
 
+.nozoom,.nozoom body{touch-action:pan-x pan-y}
 /* top receipt row */
 .upr{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 8px;align-items:center;background:var(--card);border:1.5px solid var(--pen);border-radius:10px;padding:8px 10px}
 .upr .ci,.upr>.co{border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--in-bg);min-height:44px}
@@ -305,6 +306,13 @@ button.st:active{background:color-mix(in srgb,#e8590c 10%,transparent)}
 /*__LOGOS__*/
 (function(){
 const KEY='icnfuel.v3';
+/* 폰(짧은 변 600px 미만)에서는 화면 확대(핀치·더블탭) 막기, 태블릿은 허용 */
+if(Math.min(screen.width,screen.height)<600){
+  const m=document.querySelector('meta[name="viewport"]'); if(m) m.setAttribute('content','width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover');
+  document.documentElement.classList.add('nozoom');
+  ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+  document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+}
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -390,7 +398,7 @@ ${A.tanks.map((t,i)=>`<tr><td class="lc">${L[i]}</td><td class="lb faint tn">${t
 <tr><td class="lb" colspan="2">Act uplift <span class="k">G</span></td><td>${O('G')}</td></tr>
 <tr><td class="lb" colspan="2">Cal uplift <span class="k">H=E−F</span></td><td>${O('H')}</td></tr>
 <tr><td class="lb" colspan="2">Discrepancy <span class="k">G−H</span></td><td>${PM('GH')}</td></tr>
-<tr><th colspan="4">Fuel Bowser Uplift ${UNITS(['Litres','US Gallons','Imperial Gallons'])}<span class="mk">▶ circle the unit used</span></th></tr>
+<tr><th colspan="4">Fuel Bowser Uplift ${UNITS(['Litres','US Gallons'])}<span class="mk">▶ circle the unit used</span></th></tr>
 <tr><td class="lb" colspan="2">Total bowser uplift</td><td colspan="2">${BW()}${HINT('fkg','= ',' kg')}</td></tr>
 <tr><td class="lb" colspan="2">Specific gravity</td><td colspan="2">${SG()}</td></tr>
 <tr><td class="lb" colspan="2">Reciept no<span class="mk">▶ fuel receipt number</span></td><td colspan="2">${I('rcpt',{txt:1,al:'Receipt no'})}</td></tr>

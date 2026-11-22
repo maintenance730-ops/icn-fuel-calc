@@ -26,7 +26,7 @@ const AIRLINES = {
       const B = Bin != null ? Bin : sub(A, C), E = sub(D, C), F = f.kg, H = sub(G, C), J = sub(F, H);
       return { B, C, E, reqL: toL(E, f.sg), F, H, J, Jp: pct(J, H), disc: J };
     } },
-  UL: { code: 'UL', name: 'SriLankan', types: ['A330'], units: ['L', 'USG', 'IG'],
+  UL: { code: 'UL', name: 'SriLankan', types: ['A330'], units: ['L', 'USG'],
     form: 'Aircraft Journey Log — Fuel Data',
     tanks: ['L/O', 'L/I', 'CTR', 'R/I', 'R/O', 'TRIM'],
     compute(v, f) {
